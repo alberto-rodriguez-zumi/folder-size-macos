@@ -27,6 +27,7 @@ final class ScanState: ObservableObject {
     @Published var scanning = false
     @Published var error: String?
     private var task: Task<Void, Never>?
+    private var activeScan: UUID?
 
     var current: Entry? {
         guard var entry = root else { return nil }
@@ -61,10 +62,13 @@ final class ScanState: ObservableObject {
         selected = nil
         scanning = true
         progress = url.path
+        let scanID = UUID()
+        activeScan = scanID
         task = Task {
-            let worker = Task.detached(priority: .userInitiated) { () -> (Entry?, [String]) in
+            let worker = Task.detached(priority: .utility) { () -> (Entry?, [String]) in
                 var problems: [String] = []
                 var seen = Set<String>()
+                var lastUpdate = Date.distantPast
                 let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey, .totalFileAllocatedSizeKey, .fileSizeKey, .volumeIdentifierKey, .fileResourceIdentifierKey]
                 let rootVolume = try? url.resourceValues(forKeys: [.volumeIdentifierKey]).volumeIdentifier
                 func walk(_ item: URL) -> Entry? {
@@ -78,6 +82,13 @@ final class ScanState: ObservableObject {
                         var partial = false
                         var size: Int64 = 0
                         if directory {
+                            if Date().timeIntervalSince(lastUpdate) >= 0.2 {
+                                lastUpdate = Date()
+                                let currentPath = item.path
+                                Task { @MainActor in
+                                    if self.activeScan == scanID { self.progress = currentPath }
+                                }
+                            }
                             do {
                                 let urls = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: Array(keys))
                                 for child in urls {
@@ -103,10 +114,11 @@ final class ScanState: ObservableObject {
             root = result.0
             issues = result.1
             scanning = false
+            activeScan = nil
         }
     }
 
-    func cancel() { task?.cancel(); scanning = false; progress = "" }
+    func cancel() { activeScan = nil; task?.cancel(); scanning = false; progress = "" }
     func open(_ entry: Entry) { if entry.directory { path.append(entry.id); selected = nil } }
     func navigate(_ entry: Entry) {
         guard entry.directory, let root else { return }
@@ -147,6 +159,9 @@ struct ContentView: View {
                 if state.scanning { ProgressView().controlSize(.small); Text("Analizando…"); Button("Cancelar", action: state.cancel) }
                 Spacer()
                 if let root = state.root { Button("Analizar de nuevo") { state.scan(root.id) } }
+            }
+            if state.scanning {
+                Text(state.progress).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle).frame(maxWidth: .infinity, alignment: .leading)
             }
             if let current = state.current {
                 HStack {
