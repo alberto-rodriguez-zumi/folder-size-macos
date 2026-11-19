@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Darwin
 
 @main
 struct FolderSizeApp: App {
@@ -75,6 +76,7 @@ final class ScanState: ObservableObject {
                 let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey, .totalFileAllocatedSizeKey, .fileSizeKey, .volumeIdentifierKey, .fileResourceIdentifierKey]
                 let rootVolume = try? url.resourceValues(forKeys: [.volumeIdentifierKey]).volumeIdentifier
                 func walk(_ item: URL, depth: Int = 0) -> Entry? {
+                    return autoreleasepool {
                     if Task.isCancelled { return nil }
                     do {
                         let values = try item.resourceValues(forKeys: keys)
@@ -84,9 +86,6 @@ final class ScanState: ObservableObject {
                         var children: [Entry] = []
                         var partial = false
                         var size: Int64 = 0
-                        if directory && depth >= 4 {
-                            return Entry(id: item, directory: true, size: 0, children: [], partial: true, needsScan: true)
-                        }
                         if directory {
                             if Date().timeIntervalSince(lastUpdate) >= 0.2 {
                                 lastUpdate = Date()
@@ -98,20 +97,22 @@ final class ScanState: ObservableObject {
                             do {
                                 let urls = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: Array(keys))
                                 for child in urls {
-                                    if let node = walk(child, depth: depth + 1) { children.append(node); size += node.size; partial = partial || node.partial }
+                                    if let node = walk(child, depth: depth + 1) { if depth < 4 { children.append(node) }; size += node.size; partial = partial || node.partial }
                                 }
                             } catch { problems.append("\(item.path): \(error.localizedDescription)"); partial = true }
                         } else {
-                            if let identifier = values.fileResourceIdentifier {
-                                let key = "\(String(describing: values.volumeIdentifier)):\(identifier)"
+                            var info = stat()
+                            if lstat(item.path, &info) == 0 && info.st_nlink > 1 {
+                                let key = "\(info.st_dev):\(info.st_ino)"
                                 if seen.contains(key) { return Entry(id: item, directory: false, size: 0, children: [], partial: false) }
                                 seen.insert(key)
                             }
                             if let allocated = values.totalFileAllocatedSize { size = Int64(allocated) }
                             else { partial = true; problems.append("\(item.path): tamaño asignado no disponible") }
                         }
-                        return Entry(id: item, directory: directory, size: size, children: children.sorted { $0.size > $1.size }, partial: partial)
+                        return Entry(id: item, directory: directory, size: size, children: children.sorted { $0.size > $1.size }, partial: partial, needsScan: directory && depth >= 4)
                     } catch { problems.append("\(item.path): \(error.localizedDescription)"); return Entry(id: item, directory: false, size: 0, children: [], partial: true) }
+                    }
                 }
                 return (walk(url), problems)
             }
@@ -193,7 +194,7 @@ struct ContentView: View {
                     Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
                 }
                 if current.partial {
-                    Text("Tamaños parciales. Abre las carpetas pendientes para analizar más niveles.").font(.caption).foregroundStyle(.secondary)
+                    Text("El análisis tiene resultados parciales por problemas de acceso.").font(.caption).foregroundStyle(.secondary)
                 }
                 HStack {
                     Toggle("Árbol", isOn: $showTree)
@@ -217,7 +218,7 @@ struct ContentView: View {
                             Image(systemName: entry.directory ? "folder.fill" : "doc")
                             Text(entry.id.lastPathComponent)
                             Spacer()
-                            Text(entry.needsScan ? "Pendiente de analizar" : size(entry.size) + (entry.partial ? " · parcial" : "")).monospacedDigit()
+                            Text(size(entry.size) + (entry.partial ? " · parcial" : "")).monospacedDigit()
                             if entry.directory { Button("Abrir") { state.open(entry) }.buttonStyle(.borderless) }
                         }.tag(entry.id)
                     }
