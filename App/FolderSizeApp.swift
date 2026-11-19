@@ -37,6 +37,15 @@ final class ScanState: ObservableObject {
         return entry
     }
 
+    var selectedEntry: Entry? {
+        func find(_ entry: Entry) -> Entry? {
+            if entry.id == selected { return entry }
+            for child in entry.children { if let match = find(child) { return match } }
+            return nil
+        }
+        return current.flatMap(find)
+    }
+
     func choose() {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
@@ -99,6 +108,18 @@ final class ScanState: ObservableObject {
 
     func cancel() { task?.cancel(); scanning = false; progress = "" }
     func open(_ entry: Entry) { if entry.directory { path.append(entry.id); selected = nil } }
+    func navigate(_ entry: Entry) {
+        guard entry.directory, let root else { return }
+        var chain: [URL] = []
+        func find(_ node: Entry) -> Bool {
+            chain.append(node.id)
+            if node.id == entry.id { return true }
+            for child in node.children where child.directory { if find(child) { return true } }
+            chain.removeLast()
+            return false
+        }
+        if find(root) { path = chain; selected = nil }
+    }
     func trash(_ entry: Entry) {
         let alert = NSAlert()
         alert.messageText = "¿Mover a la papelera?"
@@ -113,6 +134,11 @@ final class ScanState: ObservableObject {
 
 struct ContentView: View {
     @StateObject private var state = ScanState()
+    @State private var showTree = true
+    @State private var showHidden = false
+    @State private var filterSmall = false
+    @State private var minimumMB = 10.0
+    @State private var radial = false
     private func size(_ value: Int64) -> String { ByteCountFormatter.string(fromByteCount: value, countStyle: .file) }
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -131,19 +157,24 @@ struct ContentView: View {
                     Spacer()
                     Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
                 }
-                GeometryReader { geometry in
-                    HStack(spacing: 2) {
-                        ForEach(Array(current.children.prefix(30))) { entry in
-                            if current.size > 0 && entry.size > 0 {
-                                Button { state.selected = entry.id } label: {
-                                    VStack(alignment: .leading) { Text(entry.id.lastPathComponent).lineLimit(2); Text(size(entry.size)).font(.caption) }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading).padding(6).background(Color.accentColor.opacity(state.selected == entry.id ? 0.6 : 0.25))
-                                }.buttonStyle(.plain).frame(width: max(1, geometry.size.width * CGFloat(entry.size) / CGFloat(current.size) - 2)).clipped()
-                            }
-                        }
+                HStack {
+                    Toggle("Árbol", isOn: $showTree)
+                    Toggle("Mostrar ocultos", isOn: $showHidden)
+                    Toggle("Ocultar carpetas menores de", isOn: $filterSmall)
+                    TextField("MB", value: $minimumMB, format: .number).frame(width: 60).disabled(!filterSmall)
+                    Text("MB")
+                    Spacer()
+                    Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.pickerStyle(.segmented).frame(width: 180)
+                }
+                HStack(alignment: .top) {
+                    if showTree, let root = state.root {
+                        ScrollView { DirectoryTree(entry: root, showHidden: showHidden, open: state.navigate).frame(maxWidth: .infinity, alignment: .leading) }.frame(width: 220)
+                        Divider()
                     }
-                }.frame(height: 140).clipped()
+                    VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, select: { state.selected = $0.id }, open: state.navigate)
+                }.frame(minHeight: 260, maxHeight: .infinity)
                 List(selection: $state.selected) {
-                    ForEach(current.children) { entry in
+                    ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
                         HStack {
                             Image(systemName: entry.directory ? "folder.fill" : "doc")
                             Text(entry.id.lastPathComponent)
@@ -153,7 +184,7 @@ struct ContentView: View {
                         }.tag(entry.id)
                     }
                 }
-                if let selected = current.children.first(where: { $0.id == state.selected }) {
+                if let selected = state.selectedEntry, selected.id != current.id {
                     Text(selected.id.path).textSelection(.enabled).lineLimit(2)
                     HStack {
                         Button("Mostrar en Finder") { NSWorkspace.shared.activateFileViewerSelecting([selected.id]) }
