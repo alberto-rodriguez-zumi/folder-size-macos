@@ -2,6 +2,8 @@
 
 Aplicación nativa para macOS que ayuda a localizar qué archivos y carpetas ocupan más espacio en una carpeta o volumen. El proyecto está en fase de planificación.
 
-La propuesta inicial combina un mapa de rectángulos proporcionales al tamaño con una lista ordenable. Al seleccionar un elemento se puede consultar y copiar su ruta, mostrarlo en Finder o abrir su carpeta en Terminal.
+La primera versión combinará un mapa de rectángulos proporcionales al tamaño con una lista ordenable. Permitirá analizar carpetas, el disco de arranque, discos externos y unidades de red montadas. Al seleccionar un elemento se podrá consultar y copiar su ruta, mostrarlo en Finder, abrir su carpeta en Terminal o enviarlo a la papelera tras confirmar.
 
-[Plan inicial de la aplicación](docs/plan.md)
+El objetivo inicial es macOS 15 Sequoia o posterior en Apple Silicon, con distribución mediante un archivo `.dmg`.
+
+[Plan de la primera versión](docs/plan.md)
