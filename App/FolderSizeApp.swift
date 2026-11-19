@@ -15,6 +15,7 @@ struct Entry: Identifiable {
     var size: Int64
     var children: [Entry]
     var partial: Bool
+    var needsScan: Bool = false
 }
 
 @MainActor
@@ -54,11 +55,13 @@ final class ScanState: ObservableObject {
         if panel.runModal() == .OK, let url = panel.url { scan(url) }
     }
 
-    func scan(_ url: URL) {
+    func scan(_ url: URL, expanding: Bool = false) {
         task?.cancel()
-        root = nil
-        issues = []
-        path = [url]
+        if !expanding {
+            root = nil
+            issues = []
+            path = [url]
+        }
         selected = nil
         scanning = true
         progress = url.path
@@ -71,7 +74,7 @@ final class ScanState: ObservableObject {
                 var lastUpdate = Date.distantPast
                 let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey, .totalFileAllocatedSizeKey, .fileSizeKey, .volumeIdentifierKey, .fileResourceIdentifierKey]
                 let rootVolume = try? url.resourceValues(forKeys: [.volumeIdentifierKey]).volumeIdentifier
-                func walk(_ item: URL) -> Entry? {
+                func walk(_ item: URL, depth: Int = 0) -> Entry? {
                     if Task.isCancelled { return nil }
                     do {
                         let values = try item.resourceValues(forKeys: keys)
@@ -81,6 +84,9 @@ final class ScanState: ObservableObject {
                         var children: [Entry] = []
                         var partial = false
                         var size: Int64 = 0
+                        if directory && depth >= 4 {
+                            return Entry(id: item, directory: true, size: 0, children: [], partial: true, needsScan: true)
+                        }
                         if directory {
                             if Date().timeIntervalSince(lastUpdate) >= 0.2 {
                                 lastUpdate = Date()
@@ -92,7 +98,7 @@ final class ScanState: ObservableObject {
                             do {
                                 let urls = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: Array(keys))
                                 for child in urls {
-                                    if let node = walk(child) { children.append(node); size += node.size; partial = partial || node.partial }
+                                    if let node = walk(child, depth: depth + 1) { children.append(node); size += node.size; partial = partial || node.partial }
                                 }
                             } catch { problems.append("\(item.path): \(error.localizedDescription)"); partial = true }
                         } else {
@@ -111,15 +117,29 @@ final class ScanState: ObservableObject {
             }
             let result = await withTaskCancellationHandler { await worker.value } onCancel: { worker.cancel() }
             guard !Task.isCancelled else { return }
-            root = result.0
-            issues = result.1
+            if expanding, let replacement = result.0, let oldRoot = root {
+                func replace(_ node: Entry) -> Entry {
+                    if node.id == replacement.id { return replacement }
+                    guard url.path.hasPrefix(node.id.path.hasSuffix("/") ? node.id.path : node.id.path + "/") else { return node }
+                    var updated = node
+                    updated.children = node.children.map(replace)
+                    updated.size = updated.children.reduce(0) { $0 + $1.size }
+                    updated.partial = updated.children.contains { $0.partial }
+                    return updated
+                }
+                root = replace(oldRoot)
+                issues.append(contentsOf: result.1)
+            } else {
+                root = result.0
+                issues = result.1
+            }
             scanning = false
             activeScan = nil
         }
     }
 
     func cancel() { activeScan = nil; task?.cancel(); scanning = false; progress = "" }
-    func open(_ entry: Entry) { if entry.directory { path.append(entry.id); selected = nil } }
+    func open(_ entry: Entry) { navigate(entry) }
     func navigate(_ entry: Entry) {
         guard entry.directory, let root else { return }
         var chain: [URL] = []
@@ -130,7 +150,7 @@ final class ScanState: ObservableObject {
             chain.removeLast()
             return false
         }
-        if find(root) { path = chain; selected = nil }
+        if find(root) { path = chain; selected = nil; if entry.needsScan { scan(entry.id, expanding: true) } }
     }
     func trash(_ entry: Entry) {
         let alert = NSAlert()
@@ -172,6 +192,9 @@ struct ContentView: View {
                     Spacer()
                     Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
                 }
+                if current.partial {
+                    Text("Tamaños parciales. Abre las carpetas pendientes para analizar más niveles.").font(.caption).foregroundStyle(.secondary)
+                }
                 HStack {
                     Toggle("Árbol", isOn: $showTree)
                     Toggle("Mostrar ocultos", isOn: $showHidden)
@@ -189,12 +212,12 @@ struct ContentView: View {
                     VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, select: { state.selected = $0.id }, open: state.navigate)
                 }.frame(minHeight: 260, maxHeight: .infinity)
                 List(selection: $state.selected) {
-                    ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
+                    ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
                         HStack {
                             Image(systemName: entry.directory ? "folder.fill" : "doc")
                             Text(entry.id.lastPathComponent)
                             Spacer()
-                            Text(size(entry.size) + (entry.partial ? " · parcial" : "")).monospacedDigit()
+                            Text(entry.needsScan ? "Pendiente de analizar" : size(entry.size) + (entry.partial ? " · parcial" : "")).monospacedDigit()
                             if entry.directory { Button("Abrir") { state.open(entry) }.buttonStyle(.borderless) }
                         }.tag(entry.id)
                     }
