@@ -6,7 +6,7 @@ import Darwin
 struct FolderSizeApp: App {
     var body: some Scene {
         WindowGroup { ContentView() }
-            .defaultSize(width: 1050, height: 700)
+            .defaultSize(width: 900, height: 650)
             .commands { AboutCommand() }
         Window("Acerca de Folder Size", id: "about") {
             AboutView()
