@@ -361,14 +361,16 @@ struct ContentView: View {
                             Text(entry.id.lastPathComponent).lineLimit(1).truncationMode(.middle)
                             Spacer()
                             Text(size(entry.size)).monospacedDigit().frame(width: 140, alignment: .trailing)
-                            Group {
+                            ZStack {
+                                Color.clear.accessibilityHidden(true)
                                 if entry.partial {
                                     Image(systemName: "exclamationmark.circle")
                                         .accessibilityLabel("Resultado parcial")
                                         .help("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.")
                                 }
-                            }.frame(width: 20)
-                            Group {
+                            }.frame(width: 20, height: 24)
+                            ZStack {
+                                Color.clear.accessibilityHidden(true)
                                 if entry.directory {
                                     Button { state.open(entry) } label: {
                                         Image(systemName: "arrow.right.circle.fill")
