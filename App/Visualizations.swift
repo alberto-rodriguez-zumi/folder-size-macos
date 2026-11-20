@@ -20,6 +20,7 @@ struct VisualExplorer: View {
     let radial: Bool
     let showHidden: Bool
     let minimum: Int64
+    let maxDepth: Int
     let select: (Entry) -> Void
     let open: (Entry) -> Void
     let analyze: (Entry) -> Void
@@ -86,7 +87,7 @@ struct VisualExplorer: View {
         while index < queue.count && result.count < 600 {
             let (node, rect, depth) = queue[index]
             index += 1
-            guard depth < 5, rect.width > 3, rect.height > 3 else { continue }
+            guard depth < maxDepth, rect.width > 3, rect.height > 3 else { continue }
             let children = visible(node)
             let total = children.reduce(Int64(0)) { $0 + $1.size }
             for (child, frame) in rectangles(children, in: rect, total: total) {
@@ -108,7 +109,7 @@ struct VisualExplorer: View {
         while index < queue.count && result.count < 600 {
             let (node, start, end, depth) = queue[index]
             index += 1
-            guard depth < 5 else { continue }
+            guard depth < maxDepth else { continue }
             let children = visible(node)
             let total = children.reduce(Int64(0)) { $0 + $1.size }
             guard total > 0 else { continue }
@@ -138,12 +139,12 @@ struct VisualExplorer: View {
             if radial {
                 let dimension = min(geometry.size.width, geometry.size.height)
                 ZStack(alignment: .top) {
-                    Circle().fill(.quaternary).frame(width: dimension / 6, height: dimension / 6)
+                    Circle().fill(.quaternary).frame(width: dimension / CGFloat(maxDepth + 1), height: dimension / CGFloat(maxDepth + 1))
                         .frame(maxWidth: .infinity, maxHeight: .infinity).allowsHitTesting(false)
                     Text(root.id.lastPathComponent).font(.caption).lineLimit(1).frame(width: dimension / 7)
                         .frame(maxWidth: .infinity, maxHeight: .infinity).allowsHitTesting(false)
                     ForEach(makeSectors()) { sector in
-                        let shape = RingSegment(start: sector.start, end: sector.end, inner: CGFloat(sector.depth + 1) / 6, outer: CGFloat(sector.depth + 2) / 6)
+                        let shape = RingSegment(start: sector.start, end: sector.end, inner: CGFloat(sector.depth + 1) / CGFloat(maxDepth + 1), outer: CGFloat(sector.depth + 2) / CGFloat(maxDepth + 1))
                         shape.fill(color(sector.entry, depth: sector.depth)).overlay(shape.stroke(.background, lineWidth: 1))
                             .contentShape(shape).onTapGesture(count: 2) { open(sector.entry) }.onTapGesture { select(sector.entry) }
                             .onHover { inside in

@@ -28,6 +28,9 @@ final class ScanState: ObservableObject {
     @Published var issues: [String] = []
     @Published var scanning = false
     @Published var error: String?
+    @Published var fullDetail = false
+    @Published var includeHiddenFolders = true
+    @Published var scannedItems = 0
     private var task: Task<Void, Never>?
     private var activeScan: UUID?
 
@@ -65,7 +68,10 @@ final class ScanState: ObservableObject {
         }
         selected = nil
         scanning = true
+        scannedItems = 0
         progress = url.path
+        let retainFullDetail = fullDetail
+        let scanHiddenFolders = includeHiddenFolders
         let scanID = UUID()
         activeScan = scanID
         task = Task {
@@ -73,7 +79,8 @@ final class ScanState: ObservableObject {
                 var problems: [String] = []
                 var seen = Set<String>()
                 var lastUpdate = Date.distantPast
-                let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey, .totalFileAllocatedSizeKey, .fileSizeKey, .volumeIdentifierKey, .fileResourceIdentifierKey]
+                var itemCount = 0
+                let keys: Set<URLResourceKey> = [.isDirectoryKey, .isSymbolicLinkKey, .isHiddenKey, .totalFileAllocatedSizeKey, .fileSizeKey, .volumeIdentifierKey, .fileResourceIdentifierKey]
                 let rootVolume = try? url.resourceValues(forKeys: [.volumeIdentifierKey]).volumeIdentifier
                 func walk(_ item: URL, depth: Int = 0) -> Entry? {
                     return autoreleasepool {
@@ -83,6 +90,8 @@ final class ScanState: ObservableObject {
                         if values.isSymbolicLink == true { return Entry(id: item, directory: false, size: 0, children: [], partial: false) }
                         if let rootVolume, let volume = values.volumeIdentifier, !rootVolume.isEqual(volume) { return nil }
                         let directory = values.isDirectory == true
+                        if depth > 0 && directory && !scanHiddenFolders && (values.isHidden == true || item.lastPathComponent.hasPrefix(".")) { return nil }
+                        itemCount += 1
                         var children: [Entry] = []
                         var partial = false
                         var size: Int64 = 0
@@ -90,14 +99,15 @@ final class ScanState: ObservableObject {
                             if Date().timeIntervalSince(lastUpdate) >= 0.2 {
                                 lastUpdate = Date()
                                 let currentPath = item.path
+                                let count = itemCount
                                 Task { @MainActor in
-                                    if self.activeScan == scanID { self.progress = currentPath }
+                                    if self.activeScan == scanID { self.progress = currentPath; self.scannedItems = count }
                                 }
                             }
                             do {
                                 let urls = try FileManager.default.contentsOfDirectory(at: item, includingPropertiesForKeys: Array(keys))
                                 for child in urls {
-                                    if let node = walk(child, depth: depth + 1) { if depth < 4 { children.append(node) }; size += node.size; partial = partial || node.partial }
+                                    if let node = walk(child, depth: depth + 1) { if retainFullDetail || depth < 4 { children.append(node) }; size += node.size; partial = partial || node.partial }
                                 }
                             } catch { problems.append("\(item.path): \(error.localizedDescription)"); partial = true }
                         } else {
@@ -110,7 +120,7 @@ final class ScanState: ObservableObject {
                             if let allocated = values.totalFileAllocatedSize { size = Int64(allocated) }
                             else { partial = true; problems.append("\(item.path): tamaño asignado no disponible") }
                         }
-                        return Entry(id: item, directory: directory, size: size, children: children.sorted { $0.size > $1.size }, partial: partial, needsScan: directory && depth >= 4)
+                        return Entry(id: item, directory: directory, size: size, children: children.sorted { $0.size > $1.size }, partial: partial, needsScan: directory && !retainFullDetail && depth >= 4)
                     } catch { problems.append("\(item.path): \(error.localizedDescription)"); return Entry(id: item, directory: false, size: 0, children: [], partial: true) }
                     }
                 }
@@ -190,8 +200,13 @@ struct ContentView: View {
     @State private var filterSmall = false
     @State private var minimumMB = 10.0
     @State private var radial = false
+    @State private var displayDepth = 3
     private func size(_ value: Int64) -> String { ByteCountFormatter.string(fromByteCount: value, countStyle: .file) }
     var body: some View {
+      Group {
+       if state.root == nil {
+        ScanStartView(state: state, displayDepth: $displayDepth)
+       } else {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Button("Elegir carpeta o volumen", action: state.choose)
@@ -225,9 +240,14 @@ struct ContentView: View {
                     .help(showTree ? "Ocultar árbol de carpetas" : "Mostrar árbol de carpetas")
                     .accessibilityLabel(showTree ? "Ocultar árbol de carpetas" : "Mostrar árbol de carpetas")
                     Toggle("Mostrar ocultos", isOn: $showHidden)
+                        .disabled(!state.includeHiddenFolders)
+                        .help(state.includeHiddenFolders ? "Mostrar u ocultar elementos del análisis" : "Las carpetas ocultas se excluyeron del análisis")
                     Toggle("Ocultar carpetas menores de", isOn: $filterSmall)
                     TextField("MB", value: $minimumMB, format: .number).frame(width: 60).disabled(!filterSmall)
                     Text("MB")
+                    Picker("Niveles", selection: $displayDepth) {
+                        ForEach(1...5, id: \.self) { Text("\($0)").tag($0) }
+                    }.frame(width: 95)
                     Spacer()
                     Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.pickerStyle(.segmented).frame(width: 180)
                 }
@@ -243,7 +263,7 @@ struct ContentView: View {
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                         Divider()
                     }
-                    VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
+                    VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
                   }.frame(minHeight: 160, maxHeight: .infinity)
                   List(selection: $state.selected) {
                     ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
@@ -276,5 +296,7 @@ struct ContentView: View {
                 if !state.issues.isEmpty { DisclosureGroup("\(state.issues.count) incidencias") { ScrollView { Text(state.issues.joined(separator: "\n")).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(maxHeight: 120) } }
             } else if !state.scanning { Spacer(); Text("Selecciona una carpeta o un volumen para analizar su espacio.").foregroundStyle(.secondary).frame(maxWidth: .infinity); Spacer() }
         }.padding().alert("No se ha podido completar la acción", isPresented: Binding(get: { state.error != nil }, set: { if !$0 { state.error = nil } })) { Button("Aceptar") { state.error = nil } } message: { Text(state.error ?? "") }
+       }
+      }
     }
 }
