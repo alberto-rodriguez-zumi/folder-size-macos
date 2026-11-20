@@ -119,17 +119,31 @@ final class ScanState: ObservableObject {
             let result = await withTaskCancellationHandler { await worker.value } onCancel: { worker.cancel() }
             guard !Task.isCancelled else { return }
             if expanding, let replacement = result.0, let oldRoot = root {
+                let affectedPath = url.standardizedFileURL.path
+                let updatedIssues = issues.filter { issue in
+                    !issue.hasPrefix(affectedPath + ": ") && !issue.hasPrefix(affectedPath + "/")
+                } + result.1
                 func replace(_ node: Entry) -> Entry {
                     if node.id == replacement.id { return replacement }
                     guard url.path.hasPrefix(node.id.path.hasSuffix("/") ? node.id.path : node.id.path + "/") else { return node }
                     var updated = node
                     updated.children = node.children.map(replace)
                     updated.size = updated.children.reduce(0) { $0 + $1.size }
-                    updated.partial = updated.children.contains { $0.partial }
+                    let nodePath = node.id.standardizedFileURL.path
+                    updated.partial = updated.children.contains { $0.partial } || updatedIssues.contains { $0.hasPrefix(nodePath + ": ") }
                     return updated
                 }
                 root = replace(oldRoot)
-                issues.append(contentsOf: result.1)
+                issues = updatedIssues
+                var validPath: [URL] = []
+                var currentNode = root
+                for component in path {
+                    guard let node = currentNode, node.id == component else { break }
+                    validPath.append(component)
+                    let nextIndex = validPath.count
+                    currentNode = nextIndex < path.count ? node.children.first { $0.id == path[nextIndex] } : nil
+                }
+                path = validPath
             } else {
                 root = result.0
                 issues = result.1
@@ -141,6 +155,10 @@ final class ScanState: ObservableObject {
 
     func cancel() { activeScan = nil; task?.cancel(); scanning = false; progress = "" }
     func open(_ entry: Entry) { navigate(entry) }
+    func analyze(_ entry: Entry) {
+        guard entry.directory else { return }
+        scan(entry.id, expanding: true)
+    }
     func navigate(_ entry: Entry) {
         guard entry.directory, let root else { return }
         var chain: [URL] = []
@@ -208,10 +226,16 @@ struct ContentView: View {
                 VSplitView {
                   HStack(alignment: .top) {
                     if showTree, let root = state.root {
-                        ScrollView { DirectoryTree(entry: root, showHidden: showHidden, open: state.navigate).frame(maxWidth: .infinity, alignment: .leading) }.frame(width: 220)
+                        ScrollView {
+                            DirectoryTree(entry: root, current: current.id, showHidden: showHidden, open: state.navigate, analyze: state.analyze, isRoot: true)
+                                .padding(.vertical, 8).padding(.horizontal, 6)
+                        }
+                        .frame(width: 250)
+                        .frame(maxHeight: .infinity, alignment: .topLeading)
+                        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                         Divider()
                     }
-                    VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, select: { state.selected = $0.id }, open: state.navigate)
+                    VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
                   }.frame(minHeight: 160, maxHeight: .infinity)
                   List(selection: $state.selected) {
                     ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
@@ -222,6 +246,12 @@ struct ContentView: View {
                             Text(size(entry.size) + (entry.partial ? " · parcial" : "")).monospacedDigit()
                             if entry.directory { Button("Abrir") { state.open(entry) }.buttonStyle(.borderless) }
                         }.tag(entry.id)
+                            .contextMenu {
+                                if entry.directory {
+                                    Button("Abrir") { state.navigate(entry) }
+                                    Button("Analizar") { state.analyze(entry) }
+                                }
+                            }
                     }
                   }.frame(minHeight: 70, idealHeight: 150)
                 }

@@ -22,6 +22,7 @@ struct VisualExplorer: View {
     let minimum: Int64
     let select: (Entry) -> Void
     let open: (Entry) -> Void
+    let analyze: (Entry) -> Void
     @State private var hovered: Entry?
 
     private func visible(_ entry: Entry) -> [Entry] {
@@ -152,7 +153,12 @@ struct VisualExplorer: View {
                                     hovered = nil
                                 }
                             }
-                            .contextMenu { if sector.entry.directory { Button("Abrir") { open(sector.entry) } } }
+                            .contextMenu {
+                                if sector.entry.directory {
+                                    Button("Abrir") { open(sector.entry) }
+                                    Button("Analizar") { analyze(sector.entry) }
+                                }
+                            }
                             .help(sector.entry.id.lastPathComponent + " · " + ByteCountFormatter.string(fromByteCount: sector.entry.size, countStyle: .file))
                     }
                     if let hovered {
@@ -190,7 +196,12 @@ struct VisualExplorer: View {
                             }
                         }.frame(width: tile.rect.width, height: tile.rect.height).position(x: tile.rect.midX, y: tile.rect.midY)
                             .contentShape(Rectangle()).onTapGesture(count: 2) { open(tile.entry) }.onTapGesture { select(tile.entry) }
-                            .contextMenu { if tile.entry.directory { Button("Abrir") { open(tile.entry) } } }
+                            .contextMenu {
+                                if tile.entry.directory {
+                                    Button("Abrir") { open(tile.entry) }
+                                    Button("Analizar") { analyze(tile.entry) }
+                                }
+                            }
                             .help(tile.entry.id.lastPathComponent + " · " + ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file))
                     }
                 }.clipped()
@@ -217,16 +228,47 @@ struct RingSegment: Shape {
 
 struct DirectoryTree: View {
     let entry: Entry
+    let current: URL
     let showHidden: Bool
     let open: (Entry) -> Void
+    let analyze: (Entry) -> Void
+    var isRoot = false
+    @State private var isExpanded = false
+
+    private var row: some View {
+        Button { open(entry) } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "folder.fill")
+                    .foregroundStyle(entry.id == current ? Color.white : Color.accentColor)
+                Text(entry.id.lastPathComponent.isEmpty ? "/" : entry.id.lastPathComponent)
+                    .lineLimit(1).truncationMode(.middle)
+                Spacer(minLength: 2)
+                if entry.partial {
+                    Image(systemName: "exclamationmark.circle")
+                        .help("El tamaño es parcial")
+                }
+            }
+            .padding(.vertical, 4).padding(.horizontal, 6)
+            .foregroundStyle(entry.id == current ? Color.white : Color.primary)
+            .background(entry.id == current ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: 5))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(entry.id.path)
+        .contextMenu { Button("Analizar") { analyze(entry) } }
+    }
+
     var body: some View {
         let children = entry.children.filter { $0.directory && (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) }
         if children.isEmpty {
-            Button(entry.id.lastPathComponent) { open(entry) }.buttonStyle(.plain)
+            row.padding(.leading, 16)
         } else {
-            DisclosureGroup {
-                ForEach(children) { child in DirectoryTree(entry: child, showHidden: showHidden, open: open) }
-            } label: { Button(entry.id.lastPathComponent) { open(entry) }.buttonStyle(.plain) }
+            DisclosureGroup(isExpanded: $isExpanded) {
+                ForEach(children) { child in
+                    DirectoryTree(entry: child, current: current, showHidden: showHidden, open: open, analyze: analyze)
+                }
+            } label: { row }
+            .onAppear { if isRoot { isExpanded = true } }
         }
     }
 }
