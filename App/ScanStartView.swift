@@ -26,10 +26,15 @@ struct ScanStartView: View {
                             .foregroundStyle(.secondary)
                     }
                     ProgressView().progressViewStyle(.linear).frame(maxWidth: 380)
-                    Text(state.progress)
-                        .font(.caption).foregroundStyle(.secondary)
-                        .lineLimit(2).truncationMode(.middle).textSelection(.enabled)
-                        .frame(maxWidth: 480)
+                    ScrollView(.vertical) {
+                        Text(state.progress)
+                            .font(.caption).foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: 480)
+                    .frame(height: 56)
                     Button("Cancelar", action: state.cancel).keyboardShortcut(.cancelAction)
                 } else {
                     VStack(spacing: 8) {
