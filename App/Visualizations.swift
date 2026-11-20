@@ -25,6 +25,9 @@ struct VisualExplorer: View {
     let select: (Entry) -> Void
     let open: (Entry) -> Void
     let analyze: (Entry) -> Void
+    let showInFinder: (Entry) -> Void
+    let openTerminal: (Entry) -> Void
+    let showProperties: (Entry) -> Void
     @State private var hovered: Entry?
 
     private func relativePath(_ url: URL) -> String {
@@ -141,6 +144,18 @@ struct VisualExplorer: View {
         return result
     }
 
+    private func radialEntry(at point: CGPoint, dimension: CGFloat, sectors: [Sector]) -> Entry? {
+        guard dimension > 0 else { return nil }
+        let x = point.x - dimension / 2
+        let y = point.y - dimension / 2
+        let radius = hypot(x, y) / (dimension / 2)
+        let ring = Int(floor(radius * CGFloat(maxDepth + 1))) - 1
+        guard ring >= 0 && ring < maxDepth else { return nil }
+        let degrees = atan2(x, -y) * 180 / .pi
+        let angle = degrees < 0 ? degrees + 360 : degrees
+        return sectors.first { $0.depth == ring && angle >= $0.start && angle < $0.end }?.entry
+    }
+
     private func color(_ entry: Entry, depth: Int) -> Color {
         let base = entry.id.pathComponents.dropFirst(root.id.pathComponents.count).first ?? entry.id.lastPathComponent
         var hash: UInt64 = 5381
@@ -152,30 +167,49 @@ struct VisualExplorer: View {
         GeometryReader { geometry in
             if radial {
                 let dimension = min(geometry.size.width, geometry.size.height)
+                let sectors = makeSectors()
                 ZStack(alignment: .top) {
                     Circle().fill(.quaternary).frame(width: dimension / CGFloat(maxDepth + 1), height: dimension / CGFloat(maxDepth + 1))
                         .frame(maxWidth: .infinity, maxHeight: .infinity).allowsHitTesting(false)
                     Text(root.id.lastPathComponent).font(.caption).lineLimit(1).frame(width: dimension / 7)
                         .frame(maxWidth: .infinity, maxHeight: .infinity).allowsHitTesting(false)
-                    ForEach(makeSectors()) { sector in
+                    ForEach(sectors) { sector in
                         let shape = RingSegment(start: sector.start, end: sector.end, inner: CGFloat(sector.depth + 1) / CGFloat(maxDepth + 1), outer: CGFloat(sector.depth + 2) / CGFloat(maxDepth + 1))
                         shape.fill(color(sector.entry, depth: sector.depth)).overlay(shape.stroke(.background, lineWidth: 1))
-                            .contentShape(shape).onTapGesture(count: 2) { open(sector.entry) }.onTapGesture { select(sector.entry) }
-                            .onHover { inside in
-                                if inside {
-                                    hovered = sector.entry
-                                } else if hovered?.id == sector.entry.id {
-                                    hovered = nil
-                                }
-                            }
-                            .contextMenu {
-                                if sector.entry.directory {
-                                    Button("Abrir") { open(sector.entry) }
-                                    Button("Analizar") { analyze(sector.entry) }
-                                }
-                            }
-                            .help(tooltip(sector.entry))
+                            .allowsHitTesting(false)
                     }
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onContinuousHover { phase in
+                            switch phase {
+                            case .active(let location):
+                                hovered = radialEntry(at: location, dimension: dimension, sectors: sectors)
+                            case .ended:
+                                hovered = nil
+                            }
+                        }
+                        .gesture(
+                            SpatialTapGesture(count: 2).exclusively(before: SpatialTapGesture())
+                                .onEnded { result in
+                                    switch result {
+                                    case .first(let value):
+                                        if let entry = radialEntry(at: value.location, dimension: dimension, sectors: sectors) { open(entry) }
+                                    case .second(let value):
+                                        if let entry = radialEntry(at: value.location, dimension: dimension, sectors: sectors) { select(entry) }
+                                    }
+                                }
+                        )
+                        .contextMenu {
+                            if let entry = hovered {
+                                if entry.directory {
+                                    Button("Abrir") { open(entry) }
+                                    Button("Analizar") { analyze(entry) }
+                                }
+                                Button("Mostrar en Finder") { showInFinder(entry) }
+                                Button("Abrir en Terminal") { openTerminal(entry) }
+                                Button("Propiedades") { showProperties(entry) }
+                            }
+                        }
                     if let hovered {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(hovered.id.lastPathComponent).fontWeight(.medium)
@@ -191,6 +225,9 @@ struct VisualExplorer: View {
                     }
                 }.frame(width: dimension, height: dimension).frame(maxWidth: .infinity, maxHeight: .infinity)
                     .onChange(of: root.id) { _, _ in hovered = nil }
+                    .onChange(of: maxDepth) { _, _ in hovered = nil }
+                    .onChange(of: showHidden) { _, _ in hovered = nil }
+                    .onChange(of: minimum) { _, _ in hovered = nil }
             } else {
                 let tiles = makeTiles(in: CGRect(origin: .zero, size: geometry.size))
                 let parents = Set(tiles.map { $0.entry.id.deletingLastPathComponent().standardizedFileURL.path })
@@ -220,6 +257,9 @@ struct VisualExplorer: View {
                                     Button("Abrir") { open(tile.entry) }
                                     Button("Analizar") { analyze(tile.entry) }
                                 }
+                                Button("Mostrar en Finder") { showInFinder(tile.entry) }
+                                Button("Abrir en Terminal") { openTerminal(tile.entry) }
+                                Button("Propiedades") { showProperties(tile.entry) }
                             }
                             .help(tooltip(tile.entry))
                             .position(x: tile.rect.midX, y: tile.rect.midY)
@@ -252,6 +292,9 @@ struct DirectoryTree: View {
     let showHidden: Bool
     let open: (Entry) -> Void
     let analyze: (Entry) -> Void
+    let showInFinder: (Entry) -> Void
+    let openTerminal: (Entry) -> Void
+    let showProperties: (Entry) -> Void
     var isRoot = false
     @State private var isExpanded = false
 
@@ -275,7 +318,13 @@ struct DirectoryTree: View {
         }
         .buttonStyle(.plain)
         .help(entry.id.path)
-        .contextMenu { Button("Analizar") { analyze(entry) } }
+        .contextMenu {
+            Button("Abrir") { open(entry) }
+            Button("Analizar") { analyze(entry) }
+            Button("Mostrar en Finder") { showInFinder(entry) }
+            Button("Abrir en Terminal") { openTerminal(entry) }
+            Button("Propiedades") { showProperties(entry) }
+        }
     }
 
     var body: some View {
@@ -299,7 +348,7 @@ struct DirectoryTree: View {
             }
             if isExpanded {
                 ForEach(children) { child in
-                    DirectoryTree(entry: child, current: current, showHidden: showHidden, open: open, analyze: analyze)
+                    DirectoryTree(entry: child, current: current, showHidden: showHidden, open: open, analyze: analyze, showInFinder: showInFinder, openTerminal: openTerminal, showProperties: showProperties)
                         .padding(.leading, 16)
                 }
             }

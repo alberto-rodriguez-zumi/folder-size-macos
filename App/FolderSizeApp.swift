@@ -28,6 +28,7 @@ final class ScanState: ObservableObject {
     @Published var issues: [String] = []
     @Published var scanning = false
     @Published var error: String?
+    @Published var propertyEntry: Entry?
     @Published var fullDetail = false
     @Published var includeHiddenFolders = true
     @Published var scannedItems = 0
@@ -170,6 +171,13 @@ final class ScanState: ObservableObject {
         selected = nil
     }
     func open(_ entry: Entry) { navigate(entry) }
+    func showInFinder(_ entry: Entry) {
+        NSWorkspace.shared.activateFileViewerSelecting([entry.id])
+    }
+    func openTerminal(_ entry: Entry) {
+        let folder = entry.directory ? entry.id : entry.id.deletingLastPathComponent()
+        NSWorkspace.shared.open([folder], withApplicationAt: URL(fileURLWithPath: "/System/Applications/Utilities/Terminal.app"), configuration: NSWorkspace.OpenConfiguration())
+    }
     func analyze(_ entry: Entry) {
         guard entry.directory else { return }
         scan(entry.id, expanding: true)
@@ -267,7 +275,7 @@ struct ContentView: View {
                   HStack(alignment: .top) {
                     if showTree, let root = state.root {
                         ScrollView {
-                            DirectoryTree(entry: root, current: current.id, showHidden: showHidden, open: state.navigate, analyze: state.analyze, isRoot: true)
+                            DirectoryTree(entry: root, current: current.id, showHidden: showHidden, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 }, isRoot: true)
                                 .padding(.vertical, 8).padding(.horizontal, 6)
                         }
                         .frame(width: 250)
@@ -275,7 +283,7 @@ struct ContentView: View {
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                         Divider()
                     }
-                    VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
+                    VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 })
                   }
                 } list: {
                   List(selection: $state.selected) {
@@ -292,6 +300,9 @@ struct ContentView: View {
                                     Button("Abrir") { state.navigate(entry) }
                                     Button("Analizar") { state.analyze(entry) }
                                 }
+                                Button("Mostrar en Finder") { state.showInFinder(entry) }
+                                Button("Abrir en Terminal") { state.openTerminal(entry) }
+                                Button("Propiedades") { state.propertyEntry = entry }
                             }
                     }
                   }
@@ -299,8 +310,8 @@ struct ContentView: View {
                 if let selected = state.selectedEntry, selected.id != current.id {
                     Text(selected.id.path).textSelection(.enabled).lineLimit(2)
                     HStack {
-                        Button("Mostrar en Finder") { NSWorkspace.shared.activateFileViewerSelecting([selected.id]) }
-                        Button("Abrir en Terminal") { NSWorkspace.shared.open([selected.directory ? selected.id : selected.id.deletingLastPathComponent()], withApplicationAt: URL(fileURLWithPath: "/System/Applications/Utilities/Terminal.app"), configuration: NSWorkspace.OpenConfiguration()) }
+                        Button("Mostrar en Finder") { state.showInFinder(selected) }
+                        Button("Abrir en Terminal") { state.openTerminal(selected) }
                         Button("Copiar ruta") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(selected.id.path, forType: .string) }
                         Spacer()
                         Button("Mover a la papelera…") { state.trash(selected) }
@@ -310,6 +321,9 @@ struct ContentView: View {
             } else if !state.scanning { Spacer(); Text("Selecciona una carpeta o un volumen para analizar su espacio.").foregroundStyle(.secondary).frame(maxWidth: .infinity); Spacer() }
         }.padding().alert("No se ha podido completar la acción", isPresented: Binding(get: { state.error != nil }, set: { if !$0 { state.error = nil } })) { Button("Aceptar") { state.error = nil } } message: { Text(state.error ?? "") }
        }
+      }
+      .sheet(item: $state.propertyEntry) { entry in
+          EntryPropertiesView(entry: entry)
       }
     }
 }
