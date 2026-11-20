@@ -248,7 +248,7 @@ struct DirectoryTree: View {
                         .help("El tamaño es parcial")
                 }
             }
-            .padding(.vertical, 4).padding(.horizontal, 6)
+            .padding(.vertical, 3).padding(.horizontal, 6)
             .foregroundStyle(entry.id == current ? Color.white : Color.primary)
             .background(entry.id == current ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: 5))
             .contentShape(Rectangle())
@@ -260,15 +260,30 @@ struct DirectoryTree: View {
 
     var body: some View {
         let children = entry.children.filter { $0.directory && (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) }
-        if children.isEmpty {
-            row.padding(.leading, 16)
-        } else {
-            DisclosureGroup(isExpanded: $isExpanded) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 2) {
+                if children.isEmpty {
+                    Color.clear.frame(width: 16, height: 20).accessibilityHidden(true)
+                } else {
+                    Button { isExpanded.toggle() } label: {
+                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 16, height: 20)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(isExpanded ? "Contraer" : "Expandir") \(entry.id.lastPathComponent)")
+                }
+                row
+            }
+            if isExpanded {
                 ForEach(children) { child in
                     DirectoryTree(entry: child, current: current, showHidden: showHidden, open: open, analyze: analyze)
+                        .padding(.leading, 16)
                 }
-            } label: { row }
-            .onAppear { if isRoot { isExpanded = true } }
+            }
         }
+        .onAppear { if isRoot { isExpanded = true } }
     }
 }

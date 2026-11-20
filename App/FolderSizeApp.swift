@@ -215,7 +215,15 @@ struct ContentView: View {
                     Text("El análisis tiene resultados parciales por problemas de acceso.").font(.caption).foregroundStyle(.secondary)
                 }
                 HStack {
-                    Toggle("Árbol", isOn: $showTree)
+                    Button { showTree.toggle() } label: {
+                        HStack(spacing: 3) {
+                            Image(systemName: "sidebar.left")
+                            Image(systemName: showTree ? "chevron.left" : "chevron.right")
+                                .font(.system(size: 9, weight: .semibold))
+                        }
+                    }
+                    .help(showTree ? "Ocultar árbol de carpetas" : "Mostrar árbol de carpetas")
+                    .accessibilityLabel(showTree ? "Ocultar árbol de carpetas" : "Mostrar árbol de carpetas")
                     Toggle("Mostrar ocultos", isOn: $showHidden)
                     Toggle("Ocultar carpetas menores de", isOn: $filterSmall)
                     TextField("MB", value: $minimumMB, format: .number).frame(width: 60).disabled(!filterSmall)
