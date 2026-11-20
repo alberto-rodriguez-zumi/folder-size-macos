@@ -17,6 +17,7 @@ private struct Sector: Identifiable {
 
 struct VisualExplorer: View {
     let root: Entry
+    let scanRoot: URL
     let radial: Bool
     let showHidden: Bool
     let minimum: Int64
@@ -25,6 +26,19 @@ struct VisualExplorer: View {
     let open: (Entry) -> Void
     let analyze: (Entry) -> Void
     @State private var hovered: Entry?
+
+    private func relativePath(_ url: URL) -> String {
+        let base = scanRoot.standardizedFileURL.pathComponents
+        let components = url.standardizedFileURL.pathComponents
+        guard components.starts(with: base) else { return url.path }
+        let relative = components.dropFirst(base.count).joined(separator: "/")
+        return relative.isEmpty ? "." : relative
+    }
+
+    private func tooltip(_ entry: Entry) -> String {
+        let size = ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file)
+        return "\(relativePath(entry.id)) · \(size)\(entry.partial ? " · parcial" : "")"
+    }
 
     private func visible(_ entry: Entry) -> [Entry] {
         entry.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.size >= minimum) && $0.size > 0 }
@@ -160,12 +174,12 @@ struct VisualExplorer: View {
                                     Button("Analizar") { analyze(sector.entry) }
                                 }
                             }
-                            .help(sector.entry.id.lastPathComponent + " · " + ByteCountFormatter.string(fromByteCount: sector.entry.size, countStyle: .file))
+                            .help(tooltip(sector.entry))
                     }
                     if let hovered {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(hovered.id.lastPathComponent).fontWeight(.medium)
-                            Text(hovered.id.path).font(.caption).lineLimit(1).truncationMode(.middle)
+                            Text(relativePath(hovered.id)).font(.caption).lineLimit(1).truncationMode(.middle)
                             Text(ByteCountFormatter.string(fromByteCount: hovered.size, countStyle: .file) + (hovered.partial ? " · parcial" : ""))
                                 .font(.caption)
                         }
@@ -187,7 +201,11 @@ struct VisualExplorer: View {
                             Rectangle().fill(color(tile.entry, depth: tile.depth)).overlay(Rectangle().stroke(.background, lineWidth: 1))
                             if tile.rect.width > 55 && tile.rect.height > 18 {
                                 VStack(alignment: .leading, spacing: 1) {
-                                    Text(tile.entry.id.lastPathComponent).lineLimit(1)
+                                    if parents.contains(tile.entry.id.standardizedFileURL.path) {
+                                        Text("\(tile.entry.id.lastPathComponent) · \(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file))\(tile.entry.partial ? " · parcial" : "")").lineLimit(1)
+                                    } else {
+                                        Text(tile.entry.id.lastPathComponent).lineLimit(1)
+                                    }
                                     if tile.rect.height > 34 && !parents.contains(tile.entry.id.standardizedFileURL.path) {
                                         Text(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file) + (tile.entry.partial ? " · parcial" : ""))
                                             .lineLimit(1)
@@ -195,7 +213,7 @@ struct VisualExplorer: View {
                                 }
                                 .font(.caption).padding(.horizontal, 4).foregroundStyle(.black)
                             }
-                        }.frame(width: tile.rect.width, height: tile.rect.height).position(x: tile.rect.midX, y: tile.rect.midY)
+                        }.frame(width: tile.rect.width, height: tile.rect.height)
                             .contentShape(Rectangle()).onTapGesture(count: 2) { open(tile.entry) }.onTapGesture { select(tile.entry) }
                             .contextMenu {
                                 if tile.entry.directory {
@@ -203,7 +221,8 @@ struct VisualExplorer: View {
                                     Button("Analizar") { analyze(tile.entry) }
                                 }
                             }
-                            .help(tile.entry.id.lastPathComponent + " · " + ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file))
+                            .help(tooltip(tile.entry))
+                            .position(x: tile.rect.midX, y: tile.rect.midY)
                     }
                 }.clipped()
             }

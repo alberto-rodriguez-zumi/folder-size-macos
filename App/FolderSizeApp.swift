@@ -263,7 +263,7 @@ struct ContentView: View {
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                         Divider()
                     }
-                    VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
+                    VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
                   }.frame(minHeight: 160, maxHeight: .infinity)
                   List(selection: $state.selected) {
                     ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
