@@ -164,6 +164,11 @@ final class ScanState: ObservableObject {
     }
 
     func cancel() { activeScan = nil; task?.cancel(); scanning = false; progress = "" }
+    func goUp() {
+        guard path.count > 1 else { return }
+        path.removeLast()
+        selected = nil
+    }
     func open(_ entry: Entry) { navigate(entry) }
     func analyze(_ entry: Entry) {
         guard entry.directory else { return }
@@ -219,6 +224,13 @@ struct ContentView: View {
             }
             if let current = state.current {
                 HStack {
+                    Button(action: state.goUp) {
+                        Image(systemName: "chevron.up")
+                    }
+                    .disabled(state.path.count <= 1)
+                    .help("Subir un nivel")
+                    .accessibilityLabel("Subir un nivel")
+                    .keyboardShortcut(.upArrow, modifiers: .command)
                     ForEach(Array(state.path.enumerated()), id: \.offset) { index, url in
                         Button(url.lastPathComponent.isEmpty ? "/" : url.lastPathComponent) { state.path = Array(state.path.prefix(index + 1)); state.selected = nil }.buttonStyle(.link)
                         if index < state.path.count - 1 { Text("/").foregroundStyle(.secondary) }
@@ -249,9 +261,9 @@ struct ContentView: View {
                         ForEach(1...5, id: \.self) { Text("\($0)").tag($0) }
                     }.frame(width: 95)
                     Spacer()
-                    Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.pickerStyle(.segmented).frame(width: 180)
+                    Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.labelsHidden().pickerStyle(.segmented).frame(width: 180)
                 }
-                VSplitView {
+                ResizableResults {
                   HStack(alignment: .top) {
                     if showTree, let root = state.root {
                         ScrollView {
@@ -264,7 +276,8 @@ struct ContentView: View {
                         Divider()
                     }
                     VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze)
-                  }.frame(minHeight: 160, maxHeight: .infinity)
+                  }
+                } list: {
                   List(selection: $state.selected) {
                     ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
                         HStack {
@@ -281,7 +294,7 @@ struct ContentView: View {
                                 }
                             }
                     }
-                  }.frame(minHeight: 70, idealHeight: 150)
+                  }
                 }
                 if let selected = state.selectedEntry, selected.id != current.id {
                     Text(selected.id.path).textSelection(.enabled).lineLimit(2)
