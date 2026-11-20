@@ -20,7 +20,7 @@ struct AboutView: View {
             }
             Text("Explora el espacio ocupado por archivos y carpetas en tu Mac.")
                 .multilineTextAlignment(.center)
-            Link(destination: URL(string: "https://github.com/alberto-rodriguez-zumi/folder-size")!) {
+            Link(destination: URL(string: "https://github.com/alberto-rodriguez-zumi/folder-size-macos")!) {
                 Label("Repositorio en GitHub", systemImage: "arrow.up.right.square")
             }
             .help("Abrir el repositorio de Folder Size")
