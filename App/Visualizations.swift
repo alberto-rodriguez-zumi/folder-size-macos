@@ -29,6 +29,7 @@ struct VisualExplorer: View {
     let openTerminal: (Entry) -> Void
     let showProperties: (Entry) -> Void
     @State private var hovered: Entry?
+    @State private var hoverBelow = false
 
     private func relativePath(_ url: URL) -> String {
         let base = scanRoot.standardizedFileURL.pathComponents
@@ -36,11 +37,6 @@ struct VisualExplorer: View {
         guard components.starts(with: base) else { return url.path }
         let relative = components.dropFirst(base.count).joined(separator: "/")
         return relative.isEmpty ? "." : relative
-    }
-
-    private func tooltip(_ entry: Entry) -> String {
-        let size = ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file)
-        return "\(relativePath(entry.id)) · \(size)\(entry.partial ? " · parcial" : "")"
     }
 
     private func visible(_ entry: Entry, minimumSize: Int64) -> [Entry] {
@@ -182,11 +178,72 @@ struct VisualExplorer: View {
         return sectors.first { $0.depth == ring && angle >= $0.start && angle < $0.end }?.entry
     }
 
+    func tileEntry(at point: CGPoint, tiles: [Tile]) -> Entry? {
+        tiles.reversed().first { $0.rect.contains(point) }?.entry
+    }
+
+    func showCardAtBottom(for point: CGPoint, in size: CGSize) -> Bool {
+        point.y < 110 && abs(point.x - size.width / 2) < min(size.width, 380) / 2 + 16
+    }
+
     private func color(_ entry: Entry, depth: Int) -> Color {
         let base = entry.id.pathComponents.dropFirst(root.id.pathComponents.count).first ?? entry.id.lastPathComponent
         var hash: UInt64 = 5381
         for byte in base.utf8 { hash = (hash &* 33) &+ UInt64(byte) }
         return Color(hue: Double(hash % 360) / 360, saturation: max(0.25, 0.55 - Double(depth) * 0.05), brightness: min(0.92, 0.70 + Double(depth) * 0.04))
+    }
+
+    private func interactionLayer(size: CGSize, entryAt: @escaping (CGPoint) -> Entry?) -> some View {
+        Color.clear
+            .contentShape(Rectangle())
+            .onContinuousHover { phase in
+                switch phase {
+                case .active(let location):
+                    let entry = entryAt(location)
+                    if hovered?.id != entry?.id { hovered = entry }
+                    let nearTopCard = showCardAtBottom(for: location, in: size)
+                    if hoverBelow != nearTopCard { hoverBelow = nearTopCard }
+                case .ended:
+                    hovered = nil
+                }
+            }
+            .gesture(
+                SpatialTapGesture(count: 2).exclusively(before: SpatialTapGesture())
+                    .onEnded { result in
+                        switch result {
+                        case .first(let value):
+                            if let entry = entryAt(value.location) { open(entry) }
+                        case .second(let value):
+                            if let entry = entryAt(value.location) { select(entry) }
+                        }
+                    }
+            )
+            .contextMenu {
+                if let entry = hovered {
+                    if entry.directory {
+                        Button("Abrir") { open(entry) }
+                        Button("Analizar") { analyze(entry) }
+                    }
+                    Button("Mostrar en Finder") { showInFinder(entry) }
+                    Button("Abrir en Terminal") { openTerminal(entry) }
+                    Button("Propiedades") { showProperties(entry) }
+                }
+            }
+    }
+
+    private func hoverCard(_ entry: Entry, width: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(entry.id.lastPathComponent).fontWeight(.medium).lineLimit(1)
+            Text(relativePath(entry.id)).font(.caption).lineLimit(2).truncationMode(.middle)
+            Text(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file) + (entry.partial ? " · parcial" : ""))
+                .font(.caption)
+        }
+        .padding(8)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+        .frame(maxWidth: min(width, 380), alignment: .leading)
+        .padding(8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: hoverBelow ? .bottom : .top)
+        .allowsHitTesting(false)
     }
 
     var body: some View {
@@ -204,56 +261,11 @@ struct VisualExplorer: View {
                         shape.fill(color(sector.entry, depth: sector.depth)).overlay(shape.stroke(.background, lineWidth: 1))
                             .allowsHitTesting(false)
                     }
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .onContinuousHover { phase in
-                            switch phase {
-                            case .active(let location):
-                                hovered = radialEntry(at: location, dimension: dimension, sectors: sectors)
-                            case .ended:
-                                hovered = nil
-                            }
-                        }
-                        .gesture(
-                            SpatialTapGesture(count: 2).exclusively(before: SpatialTapGesture())
-                                .onEnded { result in
-                                    switch result {
-                                    case .first(let value):
-                                        if let entry = radialEntry(at: value.location, dimension: dimension, sectors: sectors) { open(entry) }
-                                    case .second(let value):
-                                        if let entry = radialEntry(at: value.location, dimension: dimension, sectors: sectors) { select(entry) }
-                                    }
-                                }
-                        )
-                        .contextMenu {
-                            if let entry = hovered {
-                                if entry.directory {
-                                    Button("Abrir") { open(entry) }
-                                    Button("Analizar") { analyze(entry) }
-                                }
-                                Button("Mostrar en Finder") { showInFinder(entry) }
-                                Button("Abrir en Terminal") { openTerminal(entry) }
-                                Button("Propiedades") { showProperties(entry) }
-                            }
-                        }
-                    if let hovered {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(hovered.id.lastPathComponent).fontWeight(.medium)
-                            Text(relativePath(hovered.id)).font(.caption).lineLimit(1).truncationMode(.middle)
-                            Text(ByteCountFormatter.string(fromByteCount: hovered.size, countStyle: .file) + (hovered.partial ? " · parcial" : ""))
-                                .font(.caption)
-                        }
-                        .padding(8)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
-                        .frame(maxWidth: min(dimension, 380), alignment: .leading)
-                        .padding(8)
-                        .allowsHitTesting(false)
+                    interactionLayer(size: CGSize(width: dimension, height: dimension)) { point in
+                        radialEntry(at: point, dimension: dimension, sectors: sectors)
                     }
+                    if let hovered { hoverCard(hovered, width: dimension) }
                 }.frame(width: dimension, height: dimension).frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .onChange(of: root.id) { _, _ in hovered = nil }
-                    .onChange(of: maxDepth) { _, _ in hovered = nil }
-                    .onChange(of: showHidden) { _, _ in hovered = nil }
-                    .onChange(of: minimum) { _, _ in hovered = nil }
             } else {
                 let tiles = makeTiles(in: CGRect(origin: .zero, size: geometry.size))
                 let parents = Set(tiles.map { $0.entry.id.deletingLastPathComponent().standardizedFileURL.path })
@@ -277,22 +289,21 @@ struct VisualExplorer: View {
                                 .font(.caption).padding(.horizontal, 4).foregroundStyle(.black)
                             }
                         }.frame(width: tile.rect.width, height: tile.rect.height)
-                            .contentShape(Rectangle()).onTapGesture(count: 2) { open(tile.entry) }.onTapGesture { select(tile.entry) }
-                            .contextMenu {
-                                if tile.entry.directory {
-                                    Button("Abrir") { open(tile.entry) }
-                                    Button("Analizar") { analyze(tile.entry) }
-                                }
-                                Button("Mostrar en Finder") { showInFinder(tile.entry) }
-                                Button("Abrir en Terminal") { openTerminal(tile.entry) }
-                                Button("Propiedades") { showProperties(tile.entry) }
-                            }
-                            .help(tooltip(tile.entry))
                             .position(x: tile.rect.midX, y: tile.rect.midY)
+                            .allowsHitTesting(false)
                     }
+                    interactionLayer(size: geometry.size) { point in
+                        tileEntry(at: point, tiles: tiles)
+                    }
+                    if let hovered { hoverCard(hovered, width: geometry.size.width) }
                 }.clipped()
             }
         }
+        .onChange(of: root.id) { _, _ in hovered = nil }
+        .onChange(of: radial) { _, _ in hovered = nil }
+        .onChange(of: maxDepth) { _, _ in hovered = nil }
+        .onChange(of: showHidden) { _, _ in hovered = nil }
+        .onChange(of: minimum) { _, _ in hovered = nil }
     }
 }
 

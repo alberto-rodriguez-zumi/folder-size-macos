@@ -52,6 +52,16 @@ struct ChartLayoutTests {
         let allSectors = Set(unfiltered.makeSectors().map(\.id))
         let filteredSectors = Set(filtered.makeSectors().map(\.id))
         precondition(filteredSectors.isSubset(of: allSectors), "The size filter introduced new sectors")
+        let overlapping = [
+            Tile(entry: library, rect: CGRect(x: 0, y: 0, width: 400, height: 400), depth: 0),
+            Tile(entry: caches, rect: CGRect(x: 20, y: 40, width: 150, height: 150), depth: 1)
+        ]
+        precondition(unfiltered.tileEntry(at: CGPoint(x: 30, y: 50), tiles: overlapping)?.id == caches.id)
+        precondition(unfiltered.tileEntry(at: CGPoint(x: 10, y: 10), tiles: overlapping)?.id == library.id)
+        precondition(unfiltered.tileEntry(at: CGPoint(x: 450, y: 450), tiles: overlapping) == nil)
+        precondition(unfiltered.showCardAtBottom(for: CGPoint(x: 400, y: 30), in: CGSize(width: 800, height: 600)))
+        precondition(!unfiltered.showCardAtBottom(for: CGPoint(x: 400, y: 300), in: CGSize(width: 800, height: 600)))
+        precondition(!unfiltered.showCardAtBottom(for: CGPoint(x: 30, y: 30), in: CGSize(width: 800, height: 600)))
         print("Chart layout regression checks passed")
     }
 }
