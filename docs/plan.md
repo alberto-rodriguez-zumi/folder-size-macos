@@ -21,7 +21,7 @@
 
 ## Compatibilidad y distribución
 
-- Compilar para Apple Silicon (`arm64`) con macOS 15 Sequoia como versión mínima. Implementar el análisis, la navegación y las acciones de archivo con APIs disponibles desde Sequoia. Si una API posterior aporta una mejora, comprobar su disponibilidad y mantener el flujo equivalente en macOS 15. [Apple: compatibilidad con macOS Sequoia](https://support.apple.com/en-ph/120282)
+- Compilar un binario universal para Apple Silicon (`arm64`) e Intel (`x86_64`) con macOS 15 Sequoia como versión mínima. La ejecución en Intel está pendiente de validación. Implementar el análisis, la navegación y las acciones de archivo con APIs disponibles desde Sequoia. Si una API posterior aporta una mejora, comprobar su disponibilidad y mantener el flujo equivalente en macOS 15. [Apple: compatibilidad con macOS Sequoia](https://support.apple.com/en-ph/120282)
 - Verificar el mismo paquete en macOS 15 Sequoia y macOS 26 Tahoe, incluido el portátil M1 con Tahoe. Si surge una limitación que afecte a una función de la primera versión, documentar su impacto antes de reconsiderar la versión mínima.
 - Distribuir la app en un `.dmg` que permita arrastrarla a Aplicaciones sin instalar Xcode. Para compartir la versión firmada y notarizada se necesita un certificado Developer ID Application y acceso al servicio de notarización de Apple. Verificar el paquete descargado en otro Mac. [Apple: empaquetado para distribución](https://developer.apple.com/documentation/xcode/packaging-mac-software-for-distribution) · [Apple: Developer ID](https://developer.apple.com/developer-id/)
 
