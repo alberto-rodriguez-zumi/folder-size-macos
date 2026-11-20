@@ -221,12 +221,12 @@ struct VisualExplorer: View {
             .contextMenu {
                 if let entry = hovered {
                     if entry.directory {
-                        Button("Abrir") { open(entry) }
-                        Button("Analizar") { analyze(entry) }
+                        Button("Abrir", systemImage: "folder") { open(entry) }
+                        Button("Analizar", systemImage: "arrow.clockwise") { analyze(entry) }
                     }
-                    Button("Mostrar en Finder") { showInFinder(entry) }
-                    Button("Abrir en Terminal") { openTerminal(entry) }
-                    Button("Propiedades") { showProperties(entry) }
+                    Button("Mostrar en Finder", systemImage: "folder") { showInFinder(entry) }
+                    Button("Abrir en Terminal", systemImage: "terminal") { openTerminal(entry) }
+                    Button("Propiedades", systemImage: "info.circle") { showProperties(entry) }
                 }
             }
     }
@@ -357,11 +357,11 @@ struct DirectoryTree: View {
         .buttonStyle(.plain)
         .help(entry.partial ? "Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.\n\(entry.id.path)" : entry.id.path)
         .contextMenu {
-            Button("Abrir") { open(entry) }
-            Button("Analizar") { analyze(entry) }
-            Button("Mostrar en Finder") { showInFinder(entry) }
-            Button("Abrir en Terminal") { openTerminal(entry) }
-            Button("Propiedades") { showProperties(entry) }
+            Button("Abrir", systemImage: "folder") { open(entry) }
+            Button("Analizar", systemImage: "arrow.clockwise") { analyze(entry) }
+            Button("Mostrar en Finder", systemImage: "folder") { showInFinder(entry) }
+            Button("Abrir en Terminal", systemImage: "terminal") { openTerminal(entry) }
+            Button("Propiedades", systemImage: "info.circle") { showProperties(entry) }
         }
     }
 

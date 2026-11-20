@@ -35,7 +35,7 @@ struct ScanStartView: View {
                     }
                     .frame(maxWidth: 480)
                     .frame(height: 56)
-                    Button("Cancelar", action: state.cancel).keyboardShortcut(.cancelAction)
+                    Button("Cancelar", systemImage: "xmark", action: state.cancel).keyboardShortcut(.cancelAction)
                 } else {
                     VStack(spacing: 8) {
                         Text("Explora tu espacio").font(.title2.weight(.semibold))

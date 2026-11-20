@@ -17,7 +17,7 @@ struct PrivacyAccessHelp: View {
                 Text("En Privacidad y seguridad, abre Acceso total al disco y añade o activa Folder Size. Después vuelve a analizar la carpeta.")
                 Text("Los permisos de archivos y carpetas de otras cuentas también pueden limitar el acceso. Las rutas omitidas aparecen en Incidencias.")
                     .foregroundStyle(.secondary)
-                Button("Abrir Ajustes de privacidad") {
+                Button("Abrir Ajustes de privacidad", systemImage: "gearshape") {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
                         NSWorkspace.shared.open(url)
                     }

@@ -49,7 +49,7 @@ struct EntryPropertiesView: View {
             }.formStyle(.grouped)
             HStack {
                 Spacer()
-                Button("Cerrar") { dismiss() }.keyboardShortcut(.defaultAction)
+                Button("Cerrar", systemImage: "xmark") { dismiss() }.keyboardShortcut(.defaultAction)
             }
         }
         .padding(20)
