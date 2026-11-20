@@ -7,6 +7,21 @@ struct FolderSizeApp: App {
     var body: some Scene {
         WindowGroup { ContentView() }
             .defaultSize(width: 1050, height: 700)
+            .commands { AboutCommand() }
+        Window("Acerca de Folder Size", id: "about") {
+            AboutView()
+        }
+        .windowResizability(.contentSize)
+    }
+}
+
+struct AboutCommand: Commands {
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some Commands {
+        CommandGroup(replacing: .appInfo) {
+            Button("Acerca de Folder Size") { openWindow(id: "about") }
+        }
     }
 }
 
