@@ -6,7 +6,7 @@ Folder Size es una aplicación para macOS que ayuda a encontrar los archivos y c
 
 - macOS 15 Sequoia o posterior.
 - Mac con Apple Silicon o Intel de 64 bits. La versión universal está preparada para ambas arquitecturas; la validación en distintos equipos y versiones de macOS sigue pendiente.
-- Para instalar una versión distribuible, descarga el DMG desde [Releases](https://github.com/alberto-rodriguez-zumi/folder-size/releases), ábrelo y arrastra **Folder Size** a **Aplicaciones**.
+- Para instalar una versión distribuible, descarga el DMG desde [Releases](https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases), ábrelo y arrastra **Folder Size** a **Aplicaciones**.
 
 La versión preliminar generada para desarrollo está firmada localmente y no está notarizada: no debe confundirse con una versión pública lista para distribuir.
 
