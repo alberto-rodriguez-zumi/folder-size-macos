@@ -7,7 +7,7 @@ struct ResizableResults<Chart: View, Results: View>: View {
     @State private var listHeight: CGFloat = 140
     @GestureState private var dragOffset: CGFloat = 0
 
-    private let dividerHeight: CGFloat = 9
+    private let dividerHeight: CGFloat = 12
     private let minimumListHeight: CGFloat = 70
     private let minimumChartHeight: CGFloat = 160
 
@@ -23,12 +23,8 @@ struct ResizableResults<Chart: View, Results: View>: View {
             VStack(spacing: 0) {
                 chart()
                     .frame(height: max(0, geometry.size.height - height - dividerHeight))
-                Rectangle()
-                    .fill(Color(nsColor: .separatorColor))
-                    .frame(height: 1)
-                    .frame(maxWidth: .infinity)
+                SplitHandle(orientation: .horizontal)
                     .frame(height: dividerHeight)
-                    .contentShape(Rectangle())
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .updating($dragOffset) { value, offset, _ in

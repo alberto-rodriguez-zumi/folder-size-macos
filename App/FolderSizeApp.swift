@@ -209,6 +209,7 @@ final class ScanState: ObservableObject {
 struct ContentView: View {
     @StateObject private var state = ScanState()
     @State private var showTree = true
+    @State private var treeWidth: CGFloat = 250
     @State private var showHidden = false
     @State private var filterSmall = false
     @State private var minimumMB = 10.0
@@ -218,6 +219,9 @@ struct ContentView: View {
     private var minimumBytes: Int64 {
         guard filterSmall else { return 0 }
         return Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000)
+    }
+    private func chart(_ current: Entry) -> some View {
+        VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: minimumBytes, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 })
     }
     var body: some View {
       Group {
@@ -277,18 +281,19 @@ struct ContentView: View {
                     Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.labelsHidden().pickerStyle(.segmented).frame(width: 180)
                 }
                 ResizableResults {
-                  HStack(alignment: .top) {
-                    if showTree, let root = state.root {
+                  if showTree, let root = state.root {
+                    ResizableSidebar(sidebarWidth: $treeWidth) {
                         ScrollView {
                             DirectoryTree(entry: root, current: current.id, showHidden: showHidden, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 }, isRoot: true)
                                 .padding(.vertical, 8).padding(.horizontal, 6)
                         }
-                        .frame(width: 250)
-                        .frame(maxHeight: .infinity, alignment: .topLeading)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
-                        Divider()
+                    } content: {
+                        chart(current)
                     }
-                    VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: minimumBytes, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 })
+                  } else {
+                    chart(current)
                   }
                 } list: {
                   List(selection: $state.selected) {
