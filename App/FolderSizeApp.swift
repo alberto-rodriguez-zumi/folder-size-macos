@@ -29,7 +29,7 @@ final class ScanState: ObservableObject {
     @Published var scanning = false
     @Published var error: String?
     @Published var propertyEntry: Entry?
-    @Published var fullDetail = true
+    @Published var fullDetail = false
     @Published var includeHiddenFolders = true
     @Published var scannedItems = 0
     @Published var volumeCapacity: VolumeCapacity?
