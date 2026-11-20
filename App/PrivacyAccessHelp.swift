@@ -2,9 +2,27 @@ import SwiftUI
 import AppKit
 
 struct PrivacyAccessHelp: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showingHelp = false
+    @State private var hasFullDiskAccess = false
 
     var body: some View {
+        Group {
+            if !hasFullDiskAccess {
+                helpButton
+            }
+        }
+        .task(id: scenePhase) {
+            guard scenePhase == .active else { return }
+            let hasAccess = await Task.detached(priority: .utility) {
+                FullDiskAccessProbe.canOpenProtectedFile()
+            }.value
+            guard !Task.isCancelled else { return }
+            hasFullDiskAccess = hasAccess
+        }
+    }
+
+    private var helpButton: some View {
         Button {
             showingHelp = true
         } label: {
