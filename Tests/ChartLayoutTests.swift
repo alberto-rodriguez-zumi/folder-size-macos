@@ -38,6 +38,20 @@ struct ChartLayoutTests {
             }
             precondition(tiles.count <= 600 && sectors.count <= 600)
         }
+        let unfiltered = VisualExplorer(root: root, scanRoot: root.id, radial: false, showHidden: true, minimum: 0, maxDepth: 4,
+                                        select: { _ in }, open: { _ in }, analyze: { _ in }, showInFinder: { _ in },
+                                        openTerminal: { _ in }, showProperties: { _ in })
+        let filtered = VisualExplorer(root: root, scanRoot: root.id, radial: false, showHidden: true, minimum: 500, maxDepth: 4,
+                                      select: { _ in }, open: { _ in }, analyze: { _ in }, showInFinder: { _ in },
+                                      openTerminal: { _ in }, showProperties: { _ in })
+        for bounds in [CGRect(x: 0, y: 0, width: 1200, height: 800), CGRect(x: 0, y: 0, width: 300, height: 240)] {
+            let allTiles = Set(unfiltered.makeTiles(in: bounds).map(\.id))
+            let filteredTiles = Set(filtered.makeTiles(in: bounds).map(\.id))
+            precondition(filteredTiles.isSubset(of: allTiles), "The size filter introduced new tiles")
+        }
+        let allSectors = Set(unfiltered.makeSectors().map(\.id))
+        let filteredSectors = Set(filtered.makeSectors().map(\.id))
+        precondition(filteredSectors.isSubset(of: allSectors), "The size filter introduced new sectors")
         print("Chart layout regression checks passed")
     }
 }

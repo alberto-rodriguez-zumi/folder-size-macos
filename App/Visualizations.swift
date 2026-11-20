@@ -43,8 +43,8 @@ struct VisualExplorer: View {
         return "\(relativePath(entry.id)) · \(size)\(entry.partial ? " · parcial" : "")"
     }
 
-    private func visible(_ entry: Entry) -> [Entry] {
-        entry.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.size >= minimum) && $0.size > 0 }
+    private func visible(_ entry: Entry, minimumSize: Int64) -> [Entry] {
+        entry.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.size >= minimumSize) && $0.size > 0 }
     }
 
     // Squarified treemap: group similarly sized items into rows with a good aspect ratio.
@@ -98,13 +98,20 @@ struct VisualExplorer: View {
     }
 
     func makeTiles(in bounds: CGRect) -> [Tile] {
+        let filtered = makeTiles(in: bounds, minimumSize: minimum)
+        guard minimum > 0 else { return filtered }
+        let allowed = Set(makeTiles(in: bounds, minimumSize: 0).map(\.id))
+        return filtered.filter { allowed.contains($0.id) }
+    }
+
+    private func makeTiles(in bounds: CGRect, minimumSize: Int64) -> [Tile] {
         var result: [Tile] = []
         var level: [(Entry, CGRect)] = [(root, bounds)]
         for depth in 0..<maxDepth {
             var candidates: [Tile] = []
             for (node, rect) in level {
                 guard rect.width > 3, rect.height > 3 else { continue }
-                let children = visible(node)
+                let children = visible(node, minimumSize: minimumSize)
                 let total = children.reduce(Int64(0)) { $0 + $1.size }
                 for (child, frame) in rectangles(children, in: rect, total: total) {
                     candidates.append(Tile(entry: child, rect: frame, depth: depth))
@@ -127,12 +134,19 @@ struct VisualExplorer: View {
     }
 
     func makeSectors() -> [Sector] {
+        let filtered = makeSectors(minimumSize: minimum)
+        guard minimum > 0 else { return filtered }
+        let allowed = Set(makeSectors(minimumSize: 0).map(\.id))
+        return filtered.filter { allowed.contains($0.id) }
+    }
+
+    private func makeSectors(minimumSize: Int64) -> [Sector] {
         var result: [Sector] = []
         var level: [(Entry, Double, Double)] = [(root, 0, 360)]
         for depth in 0..<maxDepth {
             var candidates: [Sector] = []
             for (node, start, end) in level {
-                let children = visible(node)
+                let children = visible(node, minimumSize: minimumSize)
                 let total = children.reduce(Int64(0)) { $0 + $1.size }
                 guard total > 0 else { continue }
                 var angle = start
