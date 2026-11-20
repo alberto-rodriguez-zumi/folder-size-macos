@@ -67,6 +67,7 @@ struct ScanStartView: View {
                         Label("Elegir carpeta o volumen", systemImage: "folder.badge.plus")
                     }
                     .buttonStyle(.borderedProminent).controlSize(.large)
+                    PrivacyAccessHelp()
                 }
             }
             .frame(maxWidth: .infinity)

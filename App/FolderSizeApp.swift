@@ -247,7 +247,10 @@ struct ContentView: View {
                     Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
                 }
                 if current.partial {
-                    Text("El análisis tiene resultados parciales por problemas de acceso.").font(.caption).foregroundStyle(.secondary)
+                    HStack {
+                        Text("El análisis tiene resultados parciales por problemas de acceso.").font(.caption).foregroundStyle(.secondary)
+                        PrivacyAccessHelp()
+                    }
                 }
                 HStack {
                     Button { showTree.toggle() } label: {
