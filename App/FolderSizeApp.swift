@@ -215,6 +215,10 @@ struct ContentView: View {
     @State private var radial = false
     @State private var displayDepth = 3
     private func size(_ value: Int64) -> String { ByteCountFormatter.string(fromByteCount: value, countStyle: .file) }
+    private var minimumBytes: Int64 {
+        guard filterSmall else { return 0 }
+        return Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000)
+    }
     var body: some View {
       Group {
        if state.root == nil {
@@ -265,9 +269,7 @@ struct ContentView: View {
                     Toggle("Mostrar ocultos", isOn: $showHidden)
                         .disabled(!state.includeHiddenFolders)
                         .help(state.includeHiddenFolders ? "Mostrar u ocultar elementos del análisis" : "Las carpetas ocultas se excluyeron del análisis")
-                    Toggle("Ocultar carpetas menores de", isOn: $filterSmall)
-                    TextField("MB", value: $minimumMB, format: .number).frame(width: 60).disabled(!filterSmall)
-                    Text("MB")
+                    MinimumFolderSizeControl(isEnabled: $filterSmall, minimumMB: $minimumMB)
                     Picker("Niveles", selection: $displayDepth) {
                         ForEach(1...5, id: \.self) { Text("\($0)").tag($0) }
                     }.frame(width: 95)
@@ -286,11 +288,11 @@ struct ContentView: View {
                         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                         Divider()
                     }
-                    VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 })
+                    VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: minimumBytes, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 })
                   }
                 } list: {
                   List(selection: $state.selected) {
-                    ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
+                    ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.partial || $0.size >= minimumBytes) }) { entry in
                         HStack {
                             Image(systemName: entry.directory ? "folder.fill" : "doc")
                             Text(entry.id.lastPathComponent)
