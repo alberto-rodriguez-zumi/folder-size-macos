@@ -19,18 +19,6 @@ struct Entry: Identifiable {
     var needsScan: Bool = false
 }
 
-struct VolumeCapacity: Sendable {
-    let total: Int64
-    let available: Int64
-
-    static func read(at url: URL) -> VolumeCapacity? {
-        guard let values = try? url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityKey]),
-              let total = values.volumeTotalCapacity, total > 0,
-              let available = values.volumeAvailableCapacity, available >= 0 else { return nil }
-        return VolumeCapacity(total: Int64(total), available: Int64(available))
-    }
-}
-
 @MainActor
 final class ScanState: ObservableObject {
     @Published var root: Entry?
@@ -41,7 +29,7 @@ final class ScanState: ObservableObject {
     @Published var scanning = false
     @Published var error: String?
     @Published var propertyEntry: Entry?
-    @Published var fullDetail = false
+    @Published var fullDetail = true
     @Published var includeHiddenFolders = true
     @Published var scannedItems = 0
     @Published var volumeCapacity: VolumeCapacity?
@@ -252,10 +240,10 @@ struct ContentView: View {
        } else {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Button("Elegir carpeta o volumen", action: state.choose)
-                if state.scanning { ProgressView().controlSize(.small); Text("Analizando…"); Button("Cancelar", action: state.cancel) }
+                Button("Elegir carpeta o volumen", systemImage: "folder", action: state.choose)
+                if state.scanning { ProgressView().controlSize(.small); Text("Analizando…"); Button("Cancelar", systemImage: "xmark", action: state.cancel) }
                 Spacer()
-                if let root = state.root { Button("Analizar de nuevo") { state.scan(root.id) } }
+                if let root = state.root { Button("Analizar de nuevo", systemImage: "arrow.clockwise") { state.scan(root.id) } }
             }
             if state.scanning {
                 Text(state.progress).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle).frame(maxWidth: .infinity, alignment: .leading)
@@ -280,6 +268,9 @@ struct ContentView: View {
                             let percentage = (Double(capacity.available) / Double(capacity.total)).formatted(.percent.precision(.fractionLength(0...1)))
                             Text("Volumen: \(size(capacity.total)) total · \(size(capacity.available)) libre (\(percentage) libre)")
                                 .font(.caption).foregroundStyle(.secondary)
+                            Text(capacity.estimatedReclaimable.map { "Recuperable estimado: \(size($0))" } ?? "Recuperable estimado: no disponible")
+                                .font(.caption).foregroundStyle(.secondary)
+                                .help("Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable.")
                         }
                     }
                 }
@@ -341,12 +332,12 @@ struct ContentView: View {
                         }.tag(entry.id)
                             .contextMenu {
                                 if entry.directory {
-                                    Button("Abrir") { state.navigate(entry) }
-                                    Button("Analizar") { state.analyze(entry) }
+                                    Button("Abrir", systemImage: "folder") { state.navigate(entry) }
+                                    Button("Analizar", systemImage: "arrow.clockwise") { state.analyze(entry) }
                                 }
-                                Button("Mostrar en Finder") { state.showInFinder(entry) }
-                                Button("Abrir en Terminal") { state.openTerminal(entry) }
-                                Button("Propiedades") { state.propertyEntry = entry }
+                                Button("Mostrar en Finder", systemImage: "folder") { state.showInFinder(entry) }
+                                Button("Abrir en Terminal", systemImage: "terminal") { state.openTerminal(entry) }
+                                Button("Propiedades", systemImage: "info.circle") { state.propertyEntry = entry }
                             }
                     }
                   }
@@ -354,11 +345,11 @@ struct ContentView: View {
                 if let selected = state.selectedEntry, selected.id != current.id {
                     Text(selected.id.path).textSelection(.enabled).lineLimit(2)
                     HStack {
-                        Button("Mostrar en Finder") { state.showInFinder(selected) }
-                        Button("Abrir en Terminal") { state.openTerminal(selected) }
-                        Button("Copiar ruta") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(selected.id.path, forType: .string) }
+                        Button("Mostrar en Finder", systemImage: "folder") { state.showInFinder(selected) }
+                        Button("Abrir en Terminal", systemImage: "terminal") { state.openTerminal(selected) }
+                        Button("Copiar ruta", systemImage: "doc.on.doc") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(selected.id.path, forType: .string) }
                         Spacer()
-                        Button("Mover a la papelera…") { state.trash(selected) }
+                        Button("Mover a la papelera…", systemImage: "trash") { state.trash(selected) }
                     }
                 }
                 if !state.issues.isEmpty { DisclosureGroup("\(state.issues.count) incidencias") { ScrollView { Text(state.issues.joined(separator: "\n")).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(maxHeight: 120) } }
