@@ -205,14 +205,15 @@ struct ContentView: View {
                     Spacer()
                     Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.pickerStyle(.segmented).frame(width: 180)
                 }
-                HStack(alignment: .top) {
+                VSplitView {
+                  HStack(alignment: .top) {
                     if showTree, let root = state.root {
                         ScrollView { DirectoryTree(entry: root, showHidden: showHidden, open: state.navigate).frame(maxWidth: .infinity, alignment: .leading) }.frame(width: 220)
                         Divider()
                     }
                     VisualExplorer(root: current, radial: radial, showHidden: showHidden, minimum: filterSmall ? Int64(max(0, min(minimumMB, 1_000_000)) * 1_000_000) : 0, select: { state.selected = $0.id }, open: state.navigate)
-                }.frame(minHeight: 260, maxHeight: .infinity)
-                List(selection: $state.selected) {
+                  }.frame(minHeight: 160, maxHeight: .infinity)
+                  List(selection: $state.selected) {
                     ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!filterSmall || !$0.directory || $0.partial || Double($0.size) >= minimumMB * 1_000_000) }) { entry in
                         HStack {
                             Image(systemName: entry.directory ? "folder.fill" : "doc")
@@ -222,6 +223,7 @@ struct ContentView: View {
                             if entry.directory { Button("Abrir") { state.open(entry) }.buttonStyle(.borderless) }
                         }.tag(entry.id)
                     }
+                  }.frame(minHeight: 70, idealHeight: 150)
                 }
                 if let selected = state.selectedEntry, selected.id != current.id {
                     Text(selected.id.path).textSelection(.enabled).lineLimit(2)
