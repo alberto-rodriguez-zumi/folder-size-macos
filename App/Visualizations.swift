@@ -22,6 +22,7 @@ struct VisualExplorer: View {
     let minimum: Int64
     let select: (Entry) -> Void
     let open: (Entry) -> Void
+    @State private var hovered: Entry?
 
     private func visible(_ entry: Entry) -> [Entry] {
         entry.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.size >= minimum) && $0.size > 0 }
@@ -124,17 +125,40 @@ struct VisualExplorer: View {
         GeometryReader { geometry in
             if radial {
                 let dimension = min(geometry.size.width, geometry.size.height)
-                ZStack {
+                ZStack(alignment: .top) {
                     Circle().fill(.quaternary).frame(width: dimension / 6, height: dimension / 6)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity).allowsHitTesting(false)
                     Text(root.id.lastPathComponent).font(.caption).lineLimit(1).frame(width: dimension / 7)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity).allowsHitTesting(false)
                     ForEach(makeSectors()) { sector in
                         let shape = RingSegment(start: sector.start, end: sector.end, inner: CGFloat(sector.depth + 1) / 6, outer: CGFloat(sector.depth + 2) / 6)
                         shape.fill(color(sector.entry, depth: sector.depth)).overlay(shape.stroke(.background, lineWidth: 1))
                             .contentShape(shape).onTapGesture(count: 2) { open(sector.entry) }.onTapGesture { select(sector.entry) }
+                            .onHover { inside in
+                                if inside {
+                                    hovered = sector.entry
+                                } else if hovered?.id == sector.entry.id {
+                                    hovered = nil
+                                }
+                            }
                             .contextMenu { if sector.entry.directory { Button("Abrir") { open(sector.entry) } } }
                             .help(sector.entry.id.lastPathComponent + " · " + ByteCountFormatter.string(fromByteCount: sector.entry.size, countStyle: .file))
                     }
+                    if let hovered {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(hovered.id.lastPathComponent).fontWeight(.medium)
+                            Text(hovered.id.path).font(.caption).lineLimit(1).truncationMode(.middle)
+                            Text(ByteCountFormatter.string(fromByteCount: hovered.size, countStyle: .file) + (hovered.partial ? " · parcial" : ""))
+                                .font(.caption)
+                        }
+                        .padding(8)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+                        .frame(maxWidth: min(dimension, 380), alignment: .leading)
+                        .padding(8)
+                        .allowsHitTesting(false)
+                    }
                 }.frame(width: dimension, height: dimension).frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onChange(of: root.id) { _, _ in hovered = nil }
             } else {
                 ZStack(alignment: .topLeading) {
                     Rectangle().fill(.quaternary)
