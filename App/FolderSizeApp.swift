@@ -208,6 +208,7 @@ final class ScanState: ObservableObject {
 
 struct ContentView: View {
     @StateObject private var state = ScanState()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showTree = true
     @State private var treeWidth: CGFloat = 250
     @State private var showHidden = false
@@ -261,7 +262,11 @@ struct ContentView: View {
                     }
                 }
                 HStack {
-                    Button { showTree.toggle() } label: {
+                    Button {
+                        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.18)) {
+                            showTree.toggle()
+                        }
+                    } label: {
                         HStack(spacing: 3) {
                             Image(systemName: "sidebar.left")
                             Image(systemName: showTree ? "chevron.left" : "chevron.right")
@@ -281,8 +286,8 @@ struct ContentView: View {
                     Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.labelsHidden().pickerStyle(.segmented).frame(width: 180)
                 }
                 ResizableResults {
-                  if showTree, let root = state.root {
-                    ResizableSidebar(sidebarWidth: $treeWidth) {
+                  if let root = state.root {
+                    ResizableSidebar(sidebarWidth: $treeWidth, isVisible: showTree) {
                         ScrollView {
                             DirectoryTree(entry: root, current: current.id, showHidden: showHidden, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 }, isRoot: true)
                                 .padding(.vertical, 8).padding(.horizontal, 6)
@@ -292,8 +297,6 @@ struct ContentView: View {
                     } content: {
                         chart(current)
                     }
-                  } else {
-                    chart(current)
                   }
                 } list: {
                   List(selection: $state.selected) {

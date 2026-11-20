@@ -4,6 +4,14 @@ import AppKit
 struct SplitHandle: View {
     enum Orientation { case horizontal, vertical }
     let orientation: Orientation
+    let dragRange: ClosedRange<CGFloat>
+    let onDragEnd: (CGFloat) -> Void
+    @GestureState private var dragOffset: CGFloat?
+    @State private var cursorIsActive = false
+
+    private func limited(_ value: CGFloat) -> CGFloat {
+        min(max(value, dragRange.lowerBound), dragRange.upperBound)
+    }
 
     var body: some View {
         ZStack {
@@ -14,32 +22,37 @@ struct SplitHandle: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
-        .background(ResizeCursor(orientation: orientation).allowsHitTesting(false))
-    }
-}
-
-private struct ResizeCursor: NSViewRepresentable {
-    let orientation: SplitHandle.Orientation
-
-    func makeNSView(context: Context) -> CursorView {
-        let view = CursorView()
-        view.cursor = orientation == .horizontal ? .resizeUpDown : .resizeLeftRight
-        return view
-    }
-
-    func updateNSView(_ view: CursorView, context: Context) {
-        view.cursor = orientation == .horizontal ? .resizeUpDown : .resizeLeftRight
-        view.window?.invalidateCursorRects(for: view)
-    }
-
-    final class CursorView: NSView {
-        var cursor: NSCursor = .arrow
-
-        override func resetCursorRects() {
-            super.resetCursorRects()
-            addCursorRect(bounds, cursor: cursor)
+        .overlay {
+            if let dragOffset {
+                Rectangle().fill(Color.accentColor.opacity(0.8))
+                    .frame(width: orientation == .vertical ? 2 : nil, height: orientation == .horizontal ? 2 : nil)
+                    .offset(x: orientation == .vertical ? dragOffset : 0, y: orientation == .horizontal ? dragOffset : 0)
+                    .allowsHitTesting(false)
+            }
         }
-
-        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .updating($dragOffset) { value, offset, _ in
+                    offset = limited(orientation == .horizontal ? value.translation.height : value.translation.width)
+                }
+                .onEnded { value in
+                    onDragEnd(limited(orientation == .horizontal ? value.translation.height : value.translation.width))
+                }
+        )
+        .onHover { inside in
+            if inside && !cursorIsActive {
+                (orientation == .horizontal ? NSCursor.resizeUpDown : NSCursor.resizeLeftRight).push()
+                cursorIsActive = true
+            } else if !inside && cursorIsActive {
+                NSCursor.pop()
+                cursorIsActive = false
+            }
+        }
+        .onDisappear {
+            if cursorIsActive {
+                NSCursor.pop()
+                cursorIsActive = false
+            }
+        }
     }
 }

@@ -5,7 +5,6 @@ struct ResizableResults<Chart: View, Results: View>: View {
     @ViewBuilder let list: () -> Results
 
     @State private var listHeight: CGFloat = 140
-    @GestureState private var dragOffset: CGFloat = 0
 
     private let dividerHeight: CGFloat = 12
     private let minimumListHeight: CGFloat = 70
@@ -19,21 +18,16 @@ struct ResizableResults<Chart: View, Results: View>: View {
     var body: some View {
         GeometryReader { geometry in
             let startingHeight = clampedHeight(listHeight, available: geometry.size.height)
-            let height = clampedHeight(startingHeight - dragOffset, available: geometry.size.height)
+            let height = startingHeight
+            let maximumHeight = clampedHeight(.greatestFiniteMagnitude, available: geometry.size.height)
             VStack(spacing: 0) {
                 chart()
                     .frame(height: max(0, geometry.size.height - height - dividerHeight))
-                SplitHandle(orientation: .horizontal)
+                SplitHandle(orientation: .horizontal, dragRange: (startingHeight - maximumHeight)...(startingHeight - minimumListHeight)) { offset in
+                    listHeight = clampedHeight(startingHeight - offset, available: geometry.size.height)
+                }
                     .frame(height: dividerHeight)
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .updating($dragOffset) { value, offset, _ in
-                                offset = value.translation.height
-                            }
-                            .onEnded { value in
-                                listHeight = clampedHeight(startingHeight - value.translation.height, available: geometry.size.height)
-                            }
-                    )
+                    .zIndex(1)
                     .accessibilityElement()
                     .accessibilityLabel("Cambiar tamaño de la lista")
                     .accessibilityAdjustableAction { direction in
