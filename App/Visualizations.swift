@@ -1,13 +1,13 @@
 import SwiftUI
 
-private struct Tile: Identifiable {
+struct Tile: Identifiable {
     let entry: Entry
     let rect: CGRect
     let depth: Int
     var id: URL { entry.id }
 }
 
-private struct Sector: Identifiable {
+struct Sector: Identifiable {
     let entry: Entry
     let start: Double
     let end: Double
@@ -97,49 +97,61 @@ struct VisualExplorer: View {
         return result
     }
 
-    private func makeTiles(in bounds: CGRect) -> [Tile] {
+    func makeTiles(in bounds: CGRect) -> [Tile] {
         var result: [Tile] = []
-        var queue: [(Entry, CGRect, Int)] = [(root, bounds, 0)]
-        var index = 0
-        while index < queue.count && result.count < 600 {
-            let (node, rect, depth) = queue[index]
-            index += 1
-            guard depth < maxDepth, rect.width > 3, rect.height > 3 else { continue }
-            let children = visible(node)
-            let total = children.reduce(Int64(0)) { $0 + $1.size }
-            for (child, frame) in rectangles(children, in: rect, total: total) {
-                guard result.count < 600 else { break }
-                result.append(Tile(entry: child, rect: frame, depth: depth))
-                if child.directory && frame.width > 45 && frame.height > 38 {
-                    let inner = CGRect(x: frame.minX + 3, y: frame.minY + 19, width: max(0, frame.width - 6), height: max(0, frame.height - 22))
-                    queue.append((child, inner, depth + 1))
+        var level: [(Entry, CGRect)] = [(root, bounds)]
+        for depth in 0..<maxDepth {
+            var candidates: [Tile] = []
+            for (node, rect) in level {
+                guard rect.width > 3, rect.height > 3 else { continue }
+                let children = visible(node)
+                let total = children.reduce(Int64(0)) { $0 + $1.size }
+                for (child, frame) in rectangles(children, in: rect, total: total) {
+                    candidates.append(Tile(entry: child, rect: frame, depth: depth))
                 }
             }
+            candidates.sort {
+                if $0.entry.size != $1.entry.size { return $0.entry.size > $1.entry.size }
+                return $0.entry.id.path < $1.entry.id.path
+            }
+            let selected = candidates.prefix(600 - result.count)
+            result.append(contentsOf: selected)
+            level = selected.compactMap { tile in
+                guard tile.entry.directory && tile.rect.width > 45 && tile.rect.height > 38 else { return nil }
+                let inner = CGRect(x: tile.rect.minX + 3, y: tile.rect.minY + 19, width: max(0, tile.rect.width - 6), height: max(0, tile.rect.height - 22))
+                return (tile.entry, inner)
+            }
+            if level.isEmpty || result.count >= 600 { break }
         }
         return result
     }
 
-    private func makeSectors() -> [Sector] {
+    func makeSectors() -> [Sector] {
         var result: [Sector] = []
-        var queue: [(Entry, Double, Double, Int)] = [(root, 0, 360, 0)]
-        var index = 0
-        while index < queue.count && result.count < 600 {
-            let (node, start, end, depth) = queue[index]
-            index += 1
-            guard depth < maxDepth else { continue }
-            let children = visible(node)
-            let total = children.reduce(Int64(0)) { $0 + $1.size }
-            guard total > 0 else { continue }
-            var angle = start
-            for child in children {
-                guard result.count < 600 else { break }
-                let next = angle + (end - start) * Double(child.size) / Double(total)
-                if next - angle >= 0.15 {
-                    result.append(Sector(entry: child, start: angle, end: next, depth: depth))
-                    queue.append((child, angle, next, depth + 1))
+        var level: [(Entry, Double, Double)] = [(root, 0, 360)]
+        for depth in 0..<maxDepth {
+            var candidates: [Sector] = []
+            for (node, start, end) in level {
+                let children = visible(node)
+                let total = children.reduce(Int64(0)) { $0 + $1.size }
+                guard total > 0 else { continue }
+                var angle = start
+                for child in children {
+                    let next = angle + (end - start) * Double(child.size) / Double(total)
+                    if next - angle >= 0.15 {
+                        candidates.append(Sector(entry: child, start: angle, end: next, depth: depth))
+                    }
+                    angle = next
                 }
-                angle = next
             }
+            candidates.sort {
+                if $0.entry.size != $1.entry.size { return $0.entry.size > $1.entry.size }
+                return $0.entry.id.path < $1.entry.id.path
+            }
+            let selected = candidates.prefix(600 - result.count)
+            result.append(contentsOf: selected)
+            level = selected.filter { $0.entry.directory }.map { ($0.entry, $0.start, $0.end) }
+            if level.isEmpty || result.count >= 600 { break }
         }
         return result
     }
@@ -308,7 +320,8 @@ struct DirectoryTree: View {
                 Spacer(minLength: 2)
                 if entry.partial {
                     Image(systemName: "exclamationmark.circle")
-                        .help("El tamaño es parcial")
+                        .accessibilityLabel("Resultado parcial")
+                        .help("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.")
                 }
             }
             .padding(.vertical, 3).padding(.horizontal, 6)
@@ -317,7 +330,7 @@ struct DirectoryTree: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(entry.id.path)
+        .help(entry.partial ? "Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.\n\(entry.id.path)" : entry.id.path)
         .contextMenu {
             Button("Abrir") { open(entry) }
             Button("Analizar") { analyze(entry) }
