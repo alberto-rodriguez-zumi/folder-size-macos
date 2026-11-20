@@ -3,19 +3,21 @@ import SwiftUI
 struct ScanStartView: View {
     @ObservedObject var state: ScanState
     @Binding var displayDepth: Int
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 20)
             VStack(spacing: 22) {
-                Image(systemName: state.scanning ? "externaldrive.badge.magnifyingglass" : "square.grid.3x3.fill")
-                    .font(.system(size: 42, weight: .medium))
-                    .foregroundStyle(.tint)
-                    .frame(width: 86, height: 86)
-                    .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 22))
-                    .symbolEffect(.pulse, options: .repeating, isActive: state.scanning && !reduceMotion)
-                    .accessibilityHidden(true)
+                if state.scanning {
+                    ScanIllustration()
+                } else {
+                    Image(systemName: "square.grid.3x3.fill")
+                        .font(.system(size: 42, weight: .medium))
+                        .foregroundStyle(.tint)
+                        .frame(width: 86, height: 86)
+                        .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 22))
+                        .accessibilityHidden(true)
+                }
 
                 if state.scanning {
                     VStack(spacing: 8) {
