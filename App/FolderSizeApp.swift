@@ -225,6 +225,7 @@ struct ContentView: View {
     @State private var minimumMB = 10.0
     @State private var radial = false
     @State private var displayDepth = 3
+    @State private var resultsSort = ResultsSort()
     private func size(_ value: Int64) -> String { ByteCountFormatter.string(fromByteCount: value, countStyle: .file) }
     private var minimumBytes: Int64 {
         guard filterSmall else { return 0 }
@@ -232,6 +233,24 @@ struct ContentView: View {
     }
     private func chart(_ current: Entry) -> some View {
         VisualExplorer(root: current, scanRoot: state.root?.id ?? current.id, radial: radial, showHidden: showHidden, minimum: minimumBytes, maxDepth: displayDepth, select: { state.selected = $0.id }, open: state.navigate, analyze: state.analyze, showInFinder: state.showInFinder, openTerminal: state.openTerminal, showProperties: { state.propertyEntry = $0 })
+    }
+    private func sortHeader(_ title: String, column: ResultsSort.Column) -> some View {
+        Button {
+            resultsSort.select(column)
+        } label: {
+            HStack(spacing: 4) {
+                Text(title)
+                if resultsSort.column == column {
+                    Image(systemName: resultsSort.ascending ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 9, weight: .semibold))
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help("Ordenar por \(title.lowercased())")
+        .accessibilityLabel("Ordenar por \(title.lowercased())")
+        .accessibilityValue(resultsSort.column == column ? (resultsSort.ascending ? "Ascendente" : "Descendente") : "Sin ordenar")
     }
     var body: some View {
       Group {
@@ -321,14 +340,46 @@ struct ContentView: View {
                     }
                   }
                 } list: {
+                  VStack(spacing: 0) {
+                    HStack(spacing: 8) {
+                        sortHeader("Nombre", column: .name)
+                        Spacer()
+                        sortHeader("Tamaño", column: .size)
+                            .frame(width: 140, alignment: .trailing)
+                        Color.clear.frame(width: 20, height: 1).accessibilityHidden(true)
+                        Color.clear.frame(width: 28, height: 1).accessibilityHidden(true)
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 5)
+                    Divider()
                   List(selection: $state.selected) {
-                    ForEach(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.partial || $0.size >= minimumBytes) }) { entry in
-                        HStack {
+                    ForEach(resultsSort.sorted(current.children.filter { (showHidden || !$0.id.lastPathComponent.hasPrefix(".")) && (!$0.directory || $0.partial || $0.size >= minimumBytes) }, name: { $0.id.lastPathComponent }, size: { $0.size })) { entry in
+                        HStack(spacing: 8) {
                             Image(systemName: entry.directory ? "folder.fill" : "doc")
-                            Text(entry.id.lastPathComponent)
+                            Text(entry.id.lastPathComponent).lineLimit(1).truncationMode(.middle)
                             Spacer()
-                            Text(size(entry.size) + (entry.partial ? " · parcial" : "")).monospacedDigit()
-                            if entry.directory { Button("Abrir") { state.open(entry) }.buttonStyle(.borderless) }
+                            Text(size(entry.size)).monospacedDigit().frame(width: 140, alignment: .trailing)
+                            Group {
+                                if entry.partial {
+                                    Image(systemName: "exclamationmark.circle")
+                                        .accessibilityLabel("Resultado parcial")
+                                        .help("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.")
+                                }
+                            }.frame(width: 20)
+                            Group {
+                                if entry.directory {
+                                    Button { state.open(entry) } label: {
+                                        Image(systemName: "arrow.right.circle.fill")
+                                            .font(.system(size: 16))
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .foregroundStyle(state.selected == entry.id ? Color.white : Color.accentColor)
+                                    .help("Abrir carpeta")
+                                    .accessibilityLabel("Abrir carpeta \(entry.id.lastPathComponent)")
+                                }
+                            }.frame(width: 28, height: 24)
                         }.tag(entry.id)
                             .contextMenu {
                                 if entry.directory {
@@ -340,6 +391,7 @@ struct ContentView: View {
                                 Button("Propiedades", systemImage: "info.circle") { state.propertyEntry = entry }
                             }
                     }
+                  }
                   }
                 }
                 if let selected = state.selectedEntry, selected.id != current.id {
