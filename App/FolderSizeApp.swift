@@ -19,6 +19,18 @@ struct Entry: Identifiable {
     var needsScan: Bool = false
 }
 
+struct VolumeCapacity: Sendable {
+    let total: Int64
+    let available: Int64
+
+    static func read(at url: URL) -> VolumeCapacity? {
+        guard let values = try? url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityKey]),
+              let total = values.volumeTotalCapacity, total > 0,
+              let available = values.volumeAvailableCapacity, available >= 0 else { return nil }
+        return VolumeCapacity(total: Int64(total), available: Int64(available))
+    }
+}
+
 @MainActor
 final class ScanState: ObservableObject {
     @Published var root: Entry?
@@ -32,8 +44,10 @@ final class ScanState: ObservableObject {
     @Published var fullDetail = false
     @Published var includeHiddenFolders = true
     @Published var scannedItems = 0
+    @Published var volumeCapacity: VolumeCapacity?
     private var task: Task<Void, Never>?
     private var activeScan: UUID?
+    private var volumeRequest: UUID?
 
     var current: Entry? {
         guard var entry = root else { return nil }
@@ -66,6 +80,13 @@ final class ScanState: ObservableObject {
             root = nil
             issues = []
             path = [url]
+            volumeCapacity = nil
+            let request = UUID()
+            volumeRequest = request
+            Task {
+                let capacity = await Task.detached(priority: .utility) { VolumeCapacity.read(at: url) }.value
+                if volumeRequest == request { volumeCapacity = capacity }
+            }
         }
         selected = nil
         scanning = true
@@ -164,7 +185,7 @@ final class ScanState: ObservableObject {
         }
     }
 
-    func cancel() { activeScan = nil; task?.cancel(); scanning = false; progress = "" }
+    func cancel() { activeScan = nil; task?.cancel(); scanning = false; progress = ""; if root == nil { volumeRequest = nil } }
     func goUp() {
         guard path.count > 1 else { return }
         path.removeLast()
@@ -253,7 +274,14 @@ struct ContentView: View {
                         if index < state.path.count - 1 { Text("/").foregroundStyle(.secondary) }
                     }
                     Spacer()
-                    Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
+                        if let capacity = state.volumeCapacity {
+                            let percentage = (Double(capacity.available) / Double(capacity.total)).formatted(.percent.precision(.fractionLength(0...1)))
+                            Text("Volumen: \(size(capacity.total)) total · \(size(capacity.available)) libre (\(percentage) libre)")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                    }
                 }
                 if current.partial {
                     HStack {
@@ -283,7 +311,10 @@ struct ContentView: View {
                         ForEach(1...5, id: \.self) { Text("\($0)").tag($0) }
                     }.frame(width: 95)
                     Spacer()
-                    Picker("Vista", selection: $radial) { Text("Mosaico").tag(false); Text("Radial").tag(true) }.labelsHidden().pickerStyle(.segmented).frame(width: 180)
+                    Picker("Vista", selection: $radial) {
+                        Image(systemName: "square.grid.2x2.fill").accessibilityLabel("Mosaico").help("Mosaico").tag(false)
+                        Image(systemName: "chart.pie.fill").accessibilityLabel("Radial").help("Radial").tag(true)
+                    }.labelsHidden().pickerStyle(.segmented).frame(width: 90)
                 }
                 ResizableResults {
                   if let root = state.root {
