@@ -5,6 +5,18 @@ struct ScanStartView: View {
     @Binding var displayDepth: Int
 
     var body: some View {
+        GeometryReader { geometry in
+            ScrollView(.vertical) {
+                content
+                    .frame(minHeight: max(0, geometry.size.height - 48))
+                    .padding(24)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(minWidth: 480, minHeight: 360)
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             Spacer(minLength: 20)
             VStack(spacing: 22) {
@@ -80,7 +92,5 @@ struct ScanStartView: View {
             .frame(maxWidth: .infinity)
             Spacer(minLength: 20)
         }
-        .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
