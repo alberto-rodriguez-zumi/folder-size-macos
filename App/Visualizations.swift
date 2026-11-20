@@ -80,37 +80,48 @@ struct VisualExplorer: View {
 
     private func makeTiles(in bounds: CGRect) -> [Tile] {
         var result: [Tile] = []
-        func walk(_ node: Entry, _ rect: CGRect, _ depth: Int) {
-            guard depth < 5, result.count < 600, rect.width > 3, rect.height > 3 else { return }
-            for (child, frame) in rectangles(visible(node), in: rect, total: node.size) {
-                guard result.count < 600 else { return }
+        var queue: [(Entry, CGRect, Int)] = [(root, bounds, 0)]
+        var index = 0
+        while index < queue.count && result.count < 600 {
+            let (node, rect, depth) = queue[index]
+            index += 1
+            guard depth < 5, rect.width > 3, rect.height > 3 else { continue }
+            let children = visible(node)
+            let total = children.reduce(Int64(0)) { $0 + $1.size }
+            for (child, frame) in rectangles(children, in: rect, total: total) {
+                guard result.count < 600 else { break }
                 result.append(Tile(entry: child, rect: frame, depth: depth))
                 if child.directory && frame.width > 45 && frame.height > 38 {
                     let inner = CGRect(x: frame.minX + 3, y: frame.minY + 19, width: max(0, frame.width - 6), height: max(0, frame.height - 22))
-                    walk(child, inner, depth + 1)
+                    queue.append((child, inner, depth + 1))
                 }
             }
         }
-        walk(root, bounds, 0)
         return result
     }
 
     private func makeSectors() -> [Sector] {
         var result: [Sector] = []
-        func walk(_ node: Entry, _ start: Double, _ end: Double, _ depth: Int) {
-            guard depth < 5, node.size > 0, result.count < 600 else { return }
+        var queue: [(Entry, Double, Double, Int)] = [(root, 0, 360, 0)]
+        var index = 0
+        while index < queue.count && result.count < 600 {
+            let (node, start, end, depth) = queue[index]
+            index += 1
+            guard depth < 5 else { continue }
+            let children = visible(node)
+            let total = children.reduce(Int64(0)) { $0 + $1.size }
+            guard total > 0 else { continue }
             var angle = start
-            for child in visible(node) {
-                guard result.count < 600 else { return }
-                let next = angle + (end - start) * Double(child.size) / Double(node.size)
+            for child in children {
+                guard result.count < 600 else { break }
+                let next = angle + (end - start) * Double(child.size) / Double(total)
                 if next - angle >= 0.15 {
                     result.append(Sector(entry: child, start: angle, end: next, depth: depth))
-                    walk(child, angle, next, depth + 1)
+                    queue.append((child, angle, next, depth + 1))
                 }
                 angle = next
             }
         }
-        walk(root, 0, 360, 0)
         return result
     }
 
@@ -160,13 +171,22 @@ struct VisualExplorer: View {
                 }.frame(width: dimension, height: dimension).frame(maxWidth: .infinity, maxHeight: .infinity)
                     .onChange(of: root.id) { _, _ in hovered = nil }
             } else {
+                let tiles = makeTiles(in: CGRect(origin: .zero, size: geometry.size))
+                let parents = Set(tiles.map { $0.entry.id.deletingLastPathComponent().standardizedFileURL.path })
                 ZStack(alignment: .topLeading) {
                     Rectangle().fill(.quaternary)
-                    ForEach(makeTiles(in: CGRect(origin: .zero, size: geometry.size))) { tile in
+                    ForEach(tiles) { tile in
                         ZStack(alignment: .topLeading) {
                             Rectangle().fill(color(tile.entry, depth: tile.depth)).overlay(Rectangle().stroke(.background, lineWidth: 1))
                             if tile.rect.width > 55 && tile.rect.height > 18 {
-                                Text(tile.entry.id.lastPathComponent).font(.caption).lineLimit(1).padding(.horizontal, 4).foregroundStyle(.black)
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(tile.entry.id.lastPathComponent).lineLimit(1)
+                                    if tile.rect.height > 34 && !parents.contains(tile.entry.id.standardizedFileURL.path) {
+                                        Text(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file) + (tile.entry.partial ? " · parcial" : ""))
+                                            .lineLimit(1)
+                                    }
+                                }
+                                .font(.caption).padding(.horizontal, 4).foregroundStyle(.black)
                             }
                         }.frame(width: tile.rect.width, height: tile.rect.height).position(x: tile.rect.midX, y: tile.rect.midY)
                             .contentShape(Rectangle()).onTapGesture(count: 2) { open(tile.entry) }.onTapGesture { select(tile.entry) }
