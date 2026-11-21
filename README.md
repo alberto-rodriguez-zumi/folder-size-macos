@@ -1,46 +1,46 @@
 # Folder Size
 
-Folder Size es una aplicación para macOS que ayuda a encontrar los archivos y carpetas que ocupan espacio. Representa los resultados como un mosaico o un gráfico radial y permite recorrerlos desde un árbol y una lista ordenable.
+Folder Size is a macOS app that helps you find which files and folders are using disk space. Explore results in a treemap or radial chart, then navigate through them with the directory tree and sortable list.
 
-## Requisitos e instalación
+[Visit the website](https://alberto-rodriguez-zumi.github.io/folder-size-macos/) · [Download the latest release](https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases/latest)
 
-- macOS 15 Sequoia o posterior.
-- Mac con Apple Silicon o Intel de 64 bits. La versión universal está preparada para ambas arquitecturas; la validación en distintos equipos y versiones de macOS sigue pendiente.
-- Para instalar una versión distribuible, descarga el DMG desde [Releases](https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases), ábrelo y arrastra **Folder Size** a **Aplicaciones**.
+## Requirements and installation
 
-La versión preliminar generada para desarrollo está firmada localmente y no está notarizada: no debe confundirse con una versión pública lista para distribuir.
+- macOS 15 Sequoia or later.
+- 64-bit Mac with Apple Silicon or Intel. The universal build supports both architectures; testing on a range of Macs and macOS versions is ongoing.
+- Download the DMG from [Releases](https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases), open it, and drag **Folder Size** to **Applications**.
 
-## Idioma
+## Language
 
-Folder Size usa español o japonés cuando el idioma del sistema corresponde a una de sus variantes, e inglés para los demás idiomas. En **Folder Size → Configuración** puedes elegir español, inglés, japonés o automático; la elección se conserva entre ejecuciones. Los cuadros y menús propios de macOS pueden seguir el idioma del sistema.
+Folder Size uses Spanish or Japanese when the system language is one of their variants, and English for other languages. Choose Spanish, English, Japanese, or Automatic in **Folder Size → Settings**; your choice is saved between launches. macOS-provided menus and dialogs may continue to use the system language.
 
-Las traducciones se mantienen en `Resources/<idioma>.lproj/Localizable.strings`; añade el código del idioma a `AppLanguage.supported` y a `CFBundleLocalizations` para incorporar otra traducción.
+Translations live in `Resources/<language>.lproj/Localizable.strings`. To add a language, include its code in `AppLanguage.supported` and `CFBundleLocalizations`.
 
-## Uso
+## Using Folder Size
 
-1. Abre Folder Size. Elige entre **Bajo demanda** —opción predeterminada, con menor consumo de memoria— y **Completo**, que conserva más detalle en memoria. Decide si quieres analizar carpetas ocultas y cuántos niveles mostrar en los gráficos.
-2. Pulsa **Elegir carpeta o volumen** y selecciona la ubicación. Puedes cancelar el análisis; el contador indica los elementos examinados, no un porcentaje de finalización.
-3. Explora el resultado en modo mosaico o radial. Pasa el cursor por un elemento para ver su información; abre una carpeta desde el gráfico, el árbol o el botón de la lista. Utiliza la ruta superior o la flecha para volver a un nivel anterior.
-4. Ordena la lista pulsando **Nombre** o **Tamaño**; vuelve a pulsar para invertir el orden. Las opciones de la barra permiten mostrar elementos ocultos y ocultar carpetas pequeñas en la visualización.
-5. Selecciona un elemento para mostrarlo en Finder, abrir Terminal, copiar su ruta o moverlo a la papelera. El menú contextual también ofrece propiedades y otras acciones. Mover a la papelera requiere confirmación y afecta a todo el contenido de una carpeta.
+1. Open Folder Size. Choose **On demand** (the default, which uses less memory) or **Full**, which keeps more detail in memory. Choose whether to scan hidden folders and how many levels to show in the charts.
+2. Select **Choose Folder or Volume** and choose a location. You can cancel a scan. The counter shows items examined, not a completion percentage.
+3. Explore the results in treemap or radial view. Hover over an item for details. Open a folder from the chart, directory tree, or list. Use the path bar or back arrow to return to a parent folder.
+4. Sort the list by **Name** or **Size**; select the same heading again to reverse the order. The toolbar can show hidden items or hide small folders in the visualization.
+5. Select an item to reveal it in Finder, open Terminal, copy its path, or move it to the Trash. The context menu also includes properties and other actions. Moving an item to the Trash requires confirmation and moves the folder's entire contents.
 
-Puedes arrastrar los separadores para ajustar el ancho del árbol y la altura de la lista. El árbol también se puede ocultar.
+Drag the dividers to resize the directory tree and the bottom list. You can also collapse the tree.
 
-## Permisos y resultados parciales
+## Permissions and partial results
 
-Algunas ubicaciones están protegidas por macOS. Si necesitas ampliar el acceso, activa **Folder Size** en **Ajustes del Sistema → Privacidad y seguridad → Acceso total al disco** y repite el análisis. Esto no garantiza acceso a todas las ubicaciones: también pueden aplicarse permisos de otras cuentas y restricciones del sistema.
+macOS protects some locations. To grant broader access, enable Folder Size under **System Settings → Privacy & Security → Full Disk Access**, then scan the location again. This does not guarantee access to every location; permissions belonging to other accounts and system restrictions may still apply.
 
-La exclamación indica que el resultado es parcial. Consulta **Incidencias** para ver las rutas y los errores registrados. La comprobación que oculta la ayuda de acceso al disco es orientativa: si macOS no permite verificar el acceso, la ayuda puede seguir apareciendo.
+An exclamation mark indicates a partial result. Open **Issues** to see the affected paths and recorded errors. The Full Disk Access prompt is an informational check; if macOS does not allow the app to verify access, the prompt may still appear.
 
-## Cómo interpretar el espacio
+## Understanding the results
 
-Los tamaños se basan en el espacio asignado de los archivos que se han podido recorrer. Los enlaces simbólicos no se siguen, se evitan otros volúmenes montados dentro de la ubicación y los enlaces duros se cuentan una sola vez durante un análisis. El acceso limitado y los cambios durante el recorrido pueden producir resultados incompletos. Los bloques compartidos de APFS y las instantáneas pueden hacer que eliminar un elemento no libere la cantidad indicada.
+Folder sizes are based on allocated file space that the app could scan. Symbolic links are not followed, nested mounted volumes are skipped, and hard links are counted once per scan. Restricted access or changes during a scan can make results incomplete. APFS shared blocks and snapshots may mean deleting an item frees less space than its displayed size.
 
-El espacio recuperable mostrado es una **estimación** basada en las capacidades que devuelve macOS; no es una medición exacta del espacio purgable. Las carpetas o unidades de red pueden responder con lentitud o desconectarse; la compatibilidad con volúmenes externos y SMB aún requiere validación adicional.
+Recoverable space is an **estimate** based on information provided by macOS, not an exact measurement of purgeable space. Network folders and drives may respond slowly or disconnect. External drives and SMB volumes need further compatibility testing.
 
-## Desarrollo
+## Development
 
-Se necesita Xcode con las herramientas de línea de comandos y el SDK de macOS. Desde la raíz del repositorio:
+You need Xcode with the macOS SDK and command-line tools. From the repository root:
 
 ```sh
 bash Scripts/build-preview.sh
@@ -50,8 +50,8 @@ bash Scripts/test-volume-capacity.sh
 bash Scripts/test-full-disk-access.sh
 ```
 
-El primer comando genera `Folder-Size-preview.dmg`, una compilación universal firmada ad hoc, apta para pruebas locales. Para preparar una distribución firmada y notarizada, consulta [la guía de publicación](docs/release.md). El alcance y las comprobaciones pendientes están en [el plan del proyecto](docs/plan.md).
+The first command creates `Folder-Size-preview.dmg`, a universal ad hoc-signed build for local testing. For a signed and notarized release, see [the release guide](docs/release.md). Product scope and outstanding checks are tracked in [the project plan](docs/plan.md).
 
-## Descargo de responsabilidad
+## Disclaimer
 
-La aplicación se proporciona tal cual, sin garantías. Comprueba los resultados y los elementos seleccionados antes de moverlos a la papelera y conserva copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso.
+Folder Size is provided **as is**, without warranties of any kind. Check scan results and selected items before moving anything to the Trash, and keep backups. To the extent permitted by law, the authors are not liable for loss or damage arising from use of the app.
