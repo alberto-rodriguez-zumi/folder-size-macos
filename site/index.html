@@ -1,42 +1,42 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Descubre qué ocupa espacio en tu Mac con Folder Size, una aplicación para explorar carpetas mediante gráficos claros.">
+  <meta name="description" content="See what is taking up space on your Mac with Folder Size, an app for exploring folders through clear visualizations.">
   <meta name="theme-color" content="#f8f6ef">
-  <title>Folder Size: tu espacio, a simple vista</title>
+  <title>Folder Size: your space at a glance</title>
   <link rel="icon" href="assets/app-icon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header container">
-    <a class="brand" href="#inicio" aria-label="Folder Size, inicio"><img src="assets/app-icon.png" width="50" height="50" alt=""><span>Folder Size</span></a>
-    <nav aria-label="Navegación principal"><a href="#como-funciona">Cómo funciona</a><a href="#instalacion">Instalación</a><a href="https://github.com/alberto-rodriguez-zumi/folder-size-macos">GitHub <span aria-hidden="true">↗</span></a></nav>
+    <a class="brand" href="#inicio" aria-label="Folder Size, home"><img src="assets/app-icon.png" width="50" height="50" alt=""><span>Folder Size</span></a>
+    <nav aria-label="Main navigation"><a href="#como-funciona">How it works</a><a href="#instalacion">Installation</a><a href="https://github.com/alberto-rodriguez-zumi/folder-size-macos">GitHub <span aria-hidden="true">↗</span></a></nav>
   </header>
   <main id="inicio">
     <section class="hero container">
       <div class="hero-copy">
-        <p class="platform">Una aplicación para macOS</p>
-        <h1>Tu espacio,<br><span>a simple vista.</span></h1>
-        <p class="lead">Descubre qué ocupa espacio en tu Mac de un vistazo.</p>
-        <div class="hero-actions"><a class="button button-primary" href="https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases/latest">Descargar para Mac <span aria-hidden="true">↗</span></a><a class="text-link" href="#como-funciona">Ver cómo funciona <span aria-hidden="true">↓</span></a></div>
-        <p class="requirements">Para macOS 15 o posterior</p>
+        <p class="platform">An app for macOS</p>
+        <h1>Your space,<br><span>at a glance.</span></h1>
+        <p class="lead">See what is taking up space on your Mac at a glance.</p>
+        <div class="hero-actions"><a class="button button-primary" href="https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases/latest">Download for Mac <span aria-hidden="true">↗</span></a><a class="text-link" href="#como-funciona">See how it works <span aria-hidden="true">↓</span></a></div>
+        <p class="requirements">For macOS 15 or later</p>
       </div>
-      <figure class="hero-visual"><div class="image-mat"><img src="assets/mosaico.png" width="1800" height="1020" alt="Vista de mosaico de Folder Size con carpetas de ejemplo."></div><figcaption>Una vista clara de tus carpetas. Datos de ejemplo.</figcaption></figure>
+      <figure class="hero-visual"><div class="image-mat"><img src="assets/mosaico.png" width="1800" height="1020" alt="Folder Size treemap view with sample folders."></div><figcaption>A clear view of your folders. Sample data.</figcaption></figure>
     </section>
     <section class="explore section container" id="como-funciona">
-      <div class="section-intro"><h2>Dos formas de mirar.</h2><p class="lead">Elige la vista que mejor te ayude a encontrar lo que buscas.</p></div>
+      <div class="section-intro"><h2>Two ways to look.</h2><p class="lead">Choose the view that helps you find what you need.</p></div>
       <div class="showcase">
-        <div class="showcase-copy"><div class="switcher" role="group" aria-label="Elegir vista de ejemplo"><button type="button" class="is-active" aria-pressed="true" data-view="mosaico">Mosaico</button><button type="button" aria-pressed="false" data-view="radial">Radial</button></div><h3 id="view-title">Cada carpeta tiene su lugar.</h3><p id="view-description">El mosaico convierte los tamaños en bloques: cuanto más ocupa una carpeta, más espacio verás.</p></div>
-        <figure class="showcase-image"><img id="view-image" src="assets/mosaico.png" width="1800" height="1020" alt="Vista de mosaico con carpetas de ejemplo."><figcaption>Vista de ejemplo de Folder Size.</figcaption></figure>
+        <div class="showcase-copy"><div class="switcher" role="group" aria-label="Choose a sample view"><button type="button" class="is-active" aria-pressed="true" data-view="mosaico">Treemap</button><button type="button" aria-pressed="false" data-view="radial">Radial</button></div><h3 id="view-title">Every folder in its place.</h3><p id="view-description">The treemap turns sizes into blocks: the more space a folder uses, the larger it appears.</p></div>
+        <figure class="showcase-image"><img id="view-image" src="assets/mosaico.png" width="1800" height="1020" alt="Treemap view with sample folders."><figcaption>Sample view of Folder Size.</figcaption></figure>
       </div>
     </section>
-    <section class="details section" aria-labelledby="details-title"><div class="container details-grid"><div><h2 id="details-title">De un vistazo al detalle.</h2><p class="lead">Empieza por una carpeta y sigue el rastro de lo que ocupa espacio.</p></div><dl class="feature-list"><div><dt>Explora a tu ritmo</dt><dd>Recorre las carpetas desde el árbol, el gráfico o la lista ordenable.</dd></div><div><dt>Enseña lo que importa</dt><dd>Muestra elementos ocultos o filtra las carpetas pequeñas en los gráficos.</dd></div><div><dt>Entiende los resultados</dt><dd>Una exclamación avisa cuando los permisos impiden completar el análisis.</dd></div></dl></div></section>
-    <section class="installation section container" id="instalacion"><div><h2>Listo para explorar.</h2><p class="lead">En unos pasos tendrás Folder Size en tu Mac.</p></div><ol class="steps"><li><strong>Descarga la aplicación.</strong><span>Abre la última versión disponible en GitHub y descarga el archivo DMG.</span></li><li><strong>Arrástrala a Aplicaciones.</strong><span>Abre el DMG y mueve Folder Size a la carpeta Aplicaciones.</span></li><li><strong>Elige una carpeta.</strong><span>Abre la aplicación y selecciona la carpeta o el volumen que quieres analizar.</span></li></ol><p class="note">Algunas ubicaciones requieren permisos adicionales de macOS. El acceso total al disco puede ampliar el análisis, aunque no garantiza acceso a todas las carpetas.</p></section>
-    <section class="closing section"><div class="container closing-inner"><div><h2>Hazle sitio a<br>la claridad.</h2><p>Tu próxima carpeta está esperando.</p><a class="button button-primary" href="https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases/latest">Descargar para Mac <span aria-hidden="true">↗</span></a><p class="requirements">macOS 15 o posterior · Apple Silicon e Intel</p></div><img src="assets/app-icon.png" width="256" height="256" alt="" loading="lazy"></div></section>
+    <section class="details section" aria-labelledby="details-title"><div class="container details-grid"><div><h2 id="details-title">From overview to detail.</h2><p class="lead">Start with a folder and follow the trail of what is taking up space.</p></div><dl class="feature-list"><div><dt>Explore at your own pace</dt><dd>Browse folders using the tree, the chart or the sortable list.</dd></div><div><dt>Show what matters</dt><dd>Show hidden items or filter small folders from the charts.</dd></div><div><dt>Understand the results</dt><dd>An exclamation mark warns you when permissions prevent a complete scan.</dd></div></dl></div></section>
+    <section class="installation section container" id="instalacion"><div><h2>Ready to explore.</h2><p class="lead">Get Folder Size onto your Mac in a few steps.</p></div><ol class="steps"><li><strong>Download the app.</strong><span>Open the latest release on GitHub and download the DMG file.</span></li><li><strong>Drag it to Applications.</strong><span>Open the DMG and move Folder Size to the Applications folder.</span></li><li><strong>Choose a folder.</strong><span>Open the app and select the folder or volume you want to scan.</span></li></ol><p class="note">Some locations require additional macOS permissions. Full Disk Access can expand the scan, but does not guarantee access to every folder.</p></section>
+    <section class="closing section"><div class="container closing-inner"><div><h2>Make room for<br>clarity.</h2><p>Your next folder is waiting.</p><a class="button button-primary" href="https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases/latest">Download for Mac <span aria-hidden="true">↗</span></a><p class="requirements">macOS 15 or later · Apple Silicon and Intel</p></div><img src="assets/app-icon.png" width="256" height="256" alt="" loading="lazy"></div></section>
   </main>
-  <footer class="site-footer container"><div><a class="brand" href="#inicio"><img src="assets/app-icon.png" width="42" height="42" alt=""><span>Folder Size</span></a><p>Una pequeña ayuda para entender tu espacio.</p></div><div class="footer-links"><a href="https://github.com/alberto-rodriguez-zumi/folder-size-macos">Código en GitHub</a><a href="https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases">Versiones</a></div></footer>
+  <footer class="site-footer container"><div><a class="brand" href="#inicio"><img src="assets/app-icon.png" width="42" height="42" alt=""><span>Folder Size</span></a><p>A little help understanding your space.</p></div><div class="footer-links"><a href="https://github.com/alberto-rodriguez-zumi/folder-size-macos">Code on GitHub</a><a href="https://github.com/alberto-rodriguez-zumi/folder-size-macos/releases">Releases</a></div></footer>
   <script src="script.js" defer></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 const views = {
-  mosaico: { title: 'Cada carpeta tiene su lugar.', description: 'El mosaico convierte los tamaños en bloques: cuanto más ocupa una carpeta, más espacio verás.', image: 'assets/mosaico.png', alt: 'Vista de mosaico con carpetas de ejemplo.' },
-  radial: { title: 'Dale una vuelta al espacio.', description: 'El gráfico radial organiza las carpetas en anillos para que sigas cada nivel de un vistazo.', image: 'assets/radial.png', alt: 'Vista radial con carpetas de ejemplo.' }
+  mosaico: { title: 'Every folder in its place.', description: 'The treemap turns sizes into blocks: the more space a folder uses, the larger it appears.', image: 'assets/mosaico.png', alt: 'Treemap view with sample folders.' },
+  radial: { title: 'See your space from another angle.', description: 'The radial chart arranges folders in rings so you can follow each level at a glance.', image: 'assets/radial.png', alt: 'Radial view with sample folders.' }
 };
 document.querySelectorAll('[data-view]').forEach((button) => button.addEventListener('click', () => {
   const view = views[button.dataset.view];
