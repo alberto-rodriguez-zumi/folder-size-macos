@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MinimumFolderSizeControl: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     @Binding var isEnabled: Bool
     @Binding var minimumMB: Double
     @State private var draftMB: Double
@@ -13,7 +14,7 @@ struct MinimumFolderSizeControl: View {
 
     var body: some View {
         HStack {
-            Toggle("Ocultar carpetas menores de", isOn: $isEnabled)
+            Toggle(L("Ocultar carpetas menores de"), isOn: $isEnabled)
             TextField("MB", value: $draftMB, format: .number)
                 .frame(width: 60)
                 .disabled(!isEnabled)

@@ -7,7 +7,7 @@ profile="${FOLDER_SIZE_NOTARY_PROFILE:?Indica el perfil de notarytool en FOLDER_
 build_dir="$(mktemp -d "${TMPDIR:-/tmp}/folder-size-release.XXXXXX")"
 trap 'rm -rf "$build_dir"' EXIT
 app_dir="$build_dir/Folder Size.app"
-dmg="$project_dir/dist/Folder-Size-0.1.0.dmg"
+dmg="$project_dir/dist/Folder-Size-0.2.0.dmg"
 
 bash "$project_dir/Scripts/build-app.sh" "$app_dir"
 codesign --force --options runtime --timestamp --sign "$identity" "$app_dir"

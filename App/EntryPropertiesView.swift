@@ -8,6 +8,7 @@ private struct EntryMetadata {
 }
 
 struct EntryPropertiesView: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     let entry: Entry
     @Environment(\.dismiss) private var dismiss
     @State private var metadata: EntryMetadata?
@@ -20,25 +21,25 @@ struct EntryPropertiesView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(entry.id.lastPathComponent.isEmpty ? "/" : entry.id.lastPathComponent)
                         .font(.title3.weight(.semibold)).lineLimit(2)
-                    Text(entry.directory ? "Carpeta" : "Archivo").foregroundStyle(.secondary)
+                    Text(entry.directory ? L("Carpeta") : L("Archivo")).foregroundStyle(.secondary)
                 }
             }
             Form {
-                LabeledContent("Ruta") {
+                LabeledContent(L("Ruta")) {
                     Text(entry.id.path).textSelection(.enabled).lineLimit(3).truncationMode(.middle)
                 }
-                LabeledContent("Tamaño analizado") {
-                    Text(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file) + (entry.partial ? " · parcial" : ""))
+                LabeledContent(L("Tamaño analizado")) {
+                    Text(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file) + (entry.partial ? L(" · parcial") : ""))
                 }
                 if let metadata {
                     if let logicalSize = metadata.logicalSize, !entry.directory {
-                        LabeledContent("Tamaño lógico", value: ByteCountFormatter.string(fromByteCount: Int64(logicalSize), countStyle: .file))
+                        LabeledContent(L("Tamaño lógico"), value: ByteCountFormatter.string(fromByteCount: Int64(logicalSize), countStyle: .file))
                     }
                     if let created = metadata.created {
-                        LabeledContent("Creación", value: created.formatted(date: .abbreviated, time: .shortened))
+                        LabeledContent(L("Creación"), value: created.formatted(date: .abbreviated, time: .shortened))
                     }
                     if let modified = metadata.modified {
-                        LabeledContent("Modificación", value: modified.formatted(date: .abbreviated, time: .shortened))
+                        LabeledContent(L("Modificación"), value: modified.formatted(date: .abbreviated, time: .shortened))
                     }
                     if let error = metadata.error {
                         Text(error).foregroundStyle(.secondary).font(.caption)
@@ -49,7 +50,7 @@ struct EntryPropertiesView: View {
             }.formStyle(.grouped)
             HStack {
                 Spacer()
-                Button("Cerrar", systemImage: "xmark") { dismiss() }.keyboardShortcut(.defaultAction)
+                Button(L("Cerrar"), systemImage: "xmark") { dismiss() }.keyboardShortcut(.defaultAction)
             }
         }
         .padding(20)
@@ -61,7 +62,7 @@ struct EntryPropertiesView: View {
                     let values = try url.resourceValues(forKeys: [.creationDateKey, .contentModificationDateKey, .fileSizeKey])
                     return EntryMetadata(created: values.creationDate, modified: values.contentModificationDate, logicalSize: values.fileSize)
                 } catch {
-                    return EntryMetadata(error: "No se pudieron consultar los metadatos: \(error.localizedDescription)")
+                    return EntryMetadata(error: LF("No se pudieron consultar los metadatos: %@", error.localizedDescription))
                 }
             }.value
         }

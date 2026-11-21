@@ -2,11 +2,12 @@ import SwiftUI
 import AppKit
 
 struct AboutView: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     private var version: String {
         let info = Bundle.main.infoDictionary
         let version = info?["CFBundleShortVersionString"] as? String ?? "—"
         let build = info?["CFBundleVersion"] as? String ?? "—"
-        return "Versión \(version) (\(build))"
+        return LF("Versión %@ (%@)", version, build)
     }
 
     var body: some View {
@@ -18,16 +19,16 @@ struct AboutView: View {
                 Text("Folder Size").font(.title2.weight(.semibold))
                 Text(version).foregroundStyle(.secondary)
             }
-            Text("Explora el espacio ocupado por archivos y carpetas en tu Mac.")
+            Text(L("Explora el espacio ocupado por archivos y carpetas en tu Mac."))
                 .multilineTextAlignment(.center)
             Link(destination: URL(string: "https://github.com/alberto-rodriguez-zumi/folder-size-macos")!) {
-                Label("Repositorio en GitHub", systemImage: "arrow.up.right.square")
+                Label(L("Repositorio en GitHub"), systemImage: "arrow.up.right.square")
             }
-            .help("Abrir el repositorio de Folder Size")
+            .help(L("Abrir el repositorio de Folder Size"))
             Divider()
             VStack(alignment: .leading, spacing: 6) {
-                Text("Descargo de responsabilidad").font(.headline)
-                Text("La aplicación se proporciona tal cual, sin garantías. Las cifras pueden ser parciales o aproximadas y no predicen necesariamente el espacio que se liberará. Revisa los archivos antes de moverlos a la papelera y mantén copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso.")
+                Text(L("Descargo de responsabilidad")).font(.headline)
+                Text(L("La aplicación se proporciona tal cual, sin garantías. Las cifras pueden ser parciales o aproximadas y no predicen necesariamente el espacio que se liberará. Revisa los archivos antes de moverlos a la papelera y mantén copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso."))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

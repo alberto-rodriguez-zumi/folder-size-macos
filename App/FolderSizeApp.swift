@@ -4,12 +4,17 @@ import Darwin
 
 @main
 struct FolderSizeApp: App {
+    @AppStorage(AppLanguage.preferenceKey) private var language = AppLanguage.automatic
     var body: some Scene {
-        WindowGroup { ContentView() }
+        WindowGroup { LocalizedContent { ContentView() } }
             .defaultSize(width: 900, height: 650)
             .commands { AboutCommand() }
-        Window("Acerca de Folder Size", id: "about") {
-            AboutView()
+        Window(L("Acerca de Folder Size"), id: "about") {
+            LocalizedContent { AboutView() }
+        }
+        .windowResizability(.contentSize)
+        Window(L("Configuración"), id: "settings") {
+            LocalizedContent { LanguageSettingsView() }
         }
         .windowResizability(.contentSize)
     }
@@ -17,10 +22,14 @@ struct FolderSizeApp: App {
 
 struct AboutCommand: Commands {
     @Environment(\.openWindow) private var openWindow
+    @AppStorage(AppLanguage.preferenceKey) private var language = AppLanguage.automatic
 
     var body: some Commands {
         CommandGroup(replacing: .appInfo) {
-            Button("Acerca de Folder Size") { openWindow(id: "about") }
+            Button(L("Acerca de Folder Size")) { openWindow(id: "about") }
+        }
+        CommandGroup(replacing: .appSettings) {
+            Button(L("Configuración") + "…", systemImage: "globe") { openWindow(id: "settings") }.keyboardShortcut(",")
         }
     }
 }
@@ -143,7 +152,7 @@ final class ScanState: ObservableObject {
                                 seen.insert(key)
                             }
                             if let allocated = values.totalFileAllocatedSize { size = Int64(allocated) }
-                            else { partial = true; problems.append("\(item.path): tamaño asignado no disponible") }
+                            else { partial = true; problems.append("\(item.path): \(L("tamaño asignado no disponible"))") }
                         }
                         return Entry(id: item, directory: directory, size: size, children: children.sorted { $0.size > $1.size }, partial: partial, needsScan: directory && !retainFullDetail && depth >= 4)
                     } catch { problems.append("\(item.path): \(error.localizedDescription)"); return Entry(id: item, directory: false, size: 0, children: [], partial: true) }
@@ -220,10 +229,10 @@ final class ScanState: ObservableObject {
     }
     func trash(_ entry: Entry) {
         let alert = NSAlert()
-        alert.messageText = "¿Mover a la papelera?"
-        alert.informativeText = "\(entry.id.path)\n\(entry.directory ? "Se moverá la carpeta y todo su contenido." : "")"
-        alert.addButton(withTitle: "Cancelar")
-        alert.addButton(withTitle: "Mover a la papelera")
+        alert.messageText = L("¿Mover a la papelera?")
+        alert.informativeText = "\(entry.id.path)\n\(entry.directory ? L("Se moverá la carpeta y todo su contenido.") : "")"
+        alert.addButton(withTitle: L("Cancelar"))
+        alert.addButton(withTitle: L("Mover a la papelera"))
         guard alert.runModal() == .alertSecondButtonReturn else { return }
         do { try FileManager.default.trashItem(at: entry.id, resultingItemURL: nil); if let root { scan(root.id) } }
         catch { self.error = error.localizedDescription }
@@ -231,6 +240,7 @@ final class ScanState: ObservableObject {
 }
 
 struct ContentView: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     @StateObject private var state = ScanState()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showTree = true
@@ -254,7 +264,7 @@ struct ContentView: View {
             resultsSort.select(column)
         } label: {
             HStack(spacing: 4) {
-                Text(title)
+                Text(L(title))
                 if resultsSort.column == column {
                     Image(systemName: resultsSort.ascending ? "chevron.up" : "chevron.down")
                         .font(.system(size: 9, weight: .semibold))
@@ -263,9 +273,9 @@ struct ContentView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("Ordenar por \(title.lowercased())")
-        .accessibilityLabel("Ordenar por \(title.lowercased())")
-        .accessibilityValue(resultsSort.column == column ? (resultsSort.ascending ? "Ascendente" : "Descendente") : "Sin ordenar")
+        .help(LF("Ordenar por %@", L(title).lowercased()))
+        .accessibilityLabel(LF("Ordenar por %@", L(title).lowercased()))
+        .accessibilityValue(resultsSort.column == column ? (resultsSort.ascending ? L("Ascendente") : L("Descendente")) : L("Sin ordenar"))
     }
     var body: some View {
       Group {
@@ -274,10 +284,10 @@ struct ContentView: View {
        } else {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Button("Elegir carpeta o volumen", systemImage: "folder", action: state.choose)
-                if state.scanning { ProgressView().controlSize(.small); Text("Analizando…"); Button("Cancelar", systemImage: "xmark", action: state.cancel) }
+                Button(L("Elegir carpeta o volumen"), systemImage: "folder", action: state.choose)
+                if state.scanning { ProgressView().controlSize(.small); Text(L("Analizando…")); Button(L("Cancelar"), systemImage: "xmark", action: state.cancel) }
                 Spacer()
-                if let root = state.root { Button("Analizar de nuevo", systemImage: "arrow.clockwise") { state.scan(root.id) } }
+                if let root = state.root { Button(L("Analizar de nuevo"), systemImage: "arrow.clockwise") { state.scan(root.id) } }
             }
             if state.scanning {
                 Text(state.progress).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle).frame(maxWidth: .infinity, alignment: .leading)
@@ -288,8 +298,8 @@ struct ContentView: View {
                         Image(systemName: "chevron.up")
                     }
                     .disabled(state.path.count <= 1)
-                    .help("Subir un nivel")
-                    .accessibilityLabel("Subir un nivel")
+                    .help(L("Subir un nivel"))
+                    .accessibilityLabel(L("Subir un nivel"))
                     .keyboardShortcut(.upArrow, modifiers: .command)
                     ForEach(Array(state.path.enumerated()), id: \.offset) { index, url in
                         Button(url.lastPathComponent.isEmpty ? "/" : url.lastPathComponent) { state.path = Array(state.path.prefix(index + 1)); state.selected = nil }.buttonStyle(.link)
@@ -297,20 +307,20 @@ struct ContentView: View {
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("\(size(current.size))\(current.partial ? " · parcial" : "")")
+                        Text("\(size(current.size))\(current.partial ? L(" · parcial") : "")")
                         if let capacity = state.volumeCapacity {
                             let percentage = (Double(capacity.available) / Double(capacity.total)).formatted(.percent.precision(.fractionLength(0...1)))
-                            Text("Volumen: \(size(capacity.total)) total · \(size(capacity.available)) libre (\(percentage) libre)")
+                            Text(LF("Volumen: %@ total · %@ libre (%@ libre)", size(capacity.total), size(capacity.available), percentage))
                                 .font(.caption).foregroundStyle(.secondary)
-                            Text(capacity.estimatedReclaimable.map { "Recuperable estimado: \(size($0))" } ?? "Recuperable estimado: no disponible")
+                            Text(capacity.estimatedReclaimable.map { LF("Recuperable estimado: %@", size($0)) } ?? L("Recuperable estimado: no disponible"))
                                 .font(.caption).foregroundStyle(.secondary)
-                                .help("Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable.")
+                                .help(L("Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable."))
                         }
                     }
                 }
                 if current.partial {
                     HStack {
-                        Text("El análisis tiene resultados parciales por problemas de acceso.").font(.caption).foregroundStyle(.secondary)
+                        Text(L("El análisis tiene resultados parciales por problemas de acceso.")).font(.caption).foregroundStyle(.secondary)
                         PrivacyAccessHelp()
                     }
                 }
@@ -326,18 +336,18 @@ struct ContentView: View {
                                 .font(.system(size: 9, weight: .semibold))
                         }
                     }
-                    .help(showTree ? "Ocultar árbol de carpetas" : "Mostrar árbol de carpetas")
-                    .accessibilityLabel(showTree ? "Ocultar árbol de carpetas" : "Mostrar árbol de carpetas")
-                    Toggle("Mostrar ocultos", isOn: $showHidden)
+                    .help(showTree ? L("Ocultar árbol de carpetas") : L("Mostrar árbol de carpetas"))
+                    .accessibilityLabel(showTree ? L("Ocultar árbol de carpetas") : L("Mostrar árbol de carpetas"))
+                    Toggle(L("Mostrar ocultos"), isOn: $showHidden)
                         .disabled(!state.includeHiddenFolders)
-                        .help(state.includeHiddenFolders ? "Mostrar u ocultar elementos del análisis" : "Las carpetas ocultas se excluyeron del análisis")
+                        .help(state.includeHiddenFolders ? L("Mostrar u ocultar elementos del análisis") : L("Las carpetas ocultas se excluyeron del análisis"))
                     MinimumFolderSizeControl(isEnabled: $filterSmall, minimumMB: $minimumMB)
-                    Picker("Niveles", selection: $displayDepth) {
+                    Picker(L("Niveles"), selection: $displayDepth) {
                         ForEach(1...5, id: \.self) { Text("\($0)").tag($0) }
                     }.frame(width: 95)
                     Spacer()
-                    Picker("Vista", selection: $radial) {
-                        Image(systemName: "square.grid.2x2.fill").accessibilityLabel("Mosaico").help("Mosaico").tag(false)
+                    Picker(L("Vista"), selection: $radial) {
+                        Image(systemName: "square.grid.2x2.fill").accessibilityLabel(L("Mosaico")).help(L("Mosaico")).tag(false)
                         Image(systemName: "chart.pie.fill").accessibilityLabel("Radial").help("Radial").tag(true)
                     }.labelsHidden().pickerStyle(.segmented).frame(width: 90)
                 }
@@ -357,9 +367,9 @@ struct ContentView: View {
                 } list: {
                   VStack(spacing: 0) {
                     HStack(spacing: 8) {
-                        sortHeader("Nombre", column: .name)
+                        sortHeader(L("Nombre"), column: .name)
                         Spacer()
-                        sortHeader("Tamaño", column: .size)
+                        sortHeader(L("Tamaño"), column: .size)
                             .frame(width: 140, alignment: .trailing)
                         Color.clear.frame(width: 20, height: 1).accessibilityHidden(true)
                         Color.clear.frame(width: 28, height: 1).accessibilityHidden(true)
@@ -380,8 +390,8 @@ struct ContentView: View {
                                 Color.clear.accessibilityHidden(true)
                                 if entry.partial {
                                     Image(systemName: "exclamationmark.circle")
-                                        .accessibilityLabel("Resultado parcial")
-                                        .help("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.")
+                                        .accessibilityLabel(L("Resultado parcial"))
+                                        .help(L("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas."))
                                 }
                             }.frame(width: 20, height: 24)
                             ZStack {
@@ -393,19 +403,19 @@ struct ContentView: View {
                                     }
                                     .buttonStyle(.borderless)
                                     .foregroundStyle(state.selected == entry.id ? Color.white : Color.accentColor)
-                                    .help("Abrir carpeta")
-                                    .accessibilityLabel("Abrir carpeta \(entry.id.lastPathComponent)")
+                                    .help(L("Abrir carpeta"))
+                                    .accessibilityLabel(LF("Abrir carpeta %@", entry.id.lastPathComponent))
                                 }
                             }.frame(width: 28, height: 24)
                         }.tag(entry.id)
                             .contextMenu {
                                 if entry.directory {
-                                    Button("Abrir", systemImage: "folder") { state.navigate(entry) }
-                                    Button("Analizar", systemImage: "arrow.clockwise") { state.analyze(entry) }
+                                    Button(L("Abrir"), systemImage: "folder") { state.navigate(entry) }
+                                    Button(L("Analizar"), systemImage: "arrow.clockwise") { state.analyze(entry) }
                                 }
-                                Button("Mostrar en Finder", systemImage: "folder") { state.showInFinder(entry) }
-                                Button("Abrir en Terminal", systemImage: "terminal") { state.openTerminal(entry) }
-                                Button("Propiedades", systemImage: "info.circle") { state.propertyEntry = entry }
+                                Button(L("Mostrar en Finder"), systemImage: "folder") { state.showInFinder(entry) }
+                                Button(L("Abrir en Terminal"), systemImage: "terminal") { state.openTerminal(entry) }
+                                Button(L("Propiedades"), systemImage: "info.circle") { state.propertyEntry = entry }
                             }
                     }
                   }
@@ -414,16 +424,16 @@ struct ContentView: View {
                 if let selected = state.selectedEntry, selected.id != current.id {
                     Text(selected.id.path).textSelection(.enabled).lineLimit(2)
                     HStack {
-                        Button("Mostrar en Finder", systemImage: "folder") { state.showInFinder(selected) }
-                        Button("Abrir en Terminal", systemImage: "terminal") { state.openTerminal(selected) }
-                        Button("Copiar ruta", systemImage: "doc.on.doc") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(selected.id.path, forType: .string) }
+                        Button(L("Mostrar en Finder"), systemImage: "folder") { state.showInFinder(selected) }
+                        Button(L("Abrir en Terminal"), systemImage: "terminal") { state.openTerminal(selected) }
+                        Button(L("Copiar ruta"), systemImage: "doc.on.doc") { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(selected.id.path, forType: .string) }
                         Spacer()
-                        Button("Mover a la papelera…", systemImage: "trash") { state.trash(selected) }
+                        Button(L("Mover a la papelera…"), systemImage: "trash") { state.trash(selected) }
                     }
                 }
-                if !state.issues.isEmpty { DisclosureGroup("\(state.issues.count) incidencias") { ScrollView { Text(state.issues.joined(separator: "\n")).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(maxHeight: 120) } }
-            } else if !state.scanning { Spacer(); Text("Selecciona una carpeta o un volumen para analizar su espacio.").foregroundStyle(.secondary).frame(maxWidth: .infinity); Spacer() }
-        }.padding().alert("No se ha podido completar la acción", isPresented: Binding(get: { state.error != nil }, set: { if !$0 { state.error = nil } })) { Button("Aceptar") { state.error = nil } } message: { Text(state.error ?? "") }
+                if !state.issues.isEmpty { DisclosureGroup(LF(state.issues.count == 1 ? "%lld incidencia" : "%lld incidencias", Int64(state.issues.count))) { ScrollView { Text(state.issues.joined(separator: "\n")).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }.frame(maxHeight: 120) } }
+            } else if !state.scanning { Spacer(); Text(L("Selecciona una carpeta o un volumen para analizar su espacio.")).foregroundStyle(.secondary).frame(maxWidth: .infinity); Spacer() }
+        }.padding().alert(L("No se ha podido completar la acción"), isPresented: Binding(get: { state.error != nil }, set: { if !$0 { state.error = nil } })) { Button(L("Aceptar")) { state.error = nil } } message: { Text(state.error ?? "") }
        }
       }
       .sheet(item: $state.propertyEntry) { entry in

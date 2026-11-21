@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key> · parcial</key>
+	<string> · incomplete</string>
+	<key>%@ %@</key>
+	<string>%@ %@</string>
+	<key>%@ elemento examinado</key>
+	<string>%@ item scanned</string>
+	<key>%@ elementos examinados</key>
+	<string>%@ items scanned</string>
+	<key>%lld incidencia</key>
+	<string>%lld issue</string>
+	<key>%lld incidencias</key>
+	<string>%lld issues</string>
+	<key>Abrir</key>
+	<string>Open</string>
+	<key>Abrir Ajustes de privacidad</key>
+	<string>Open Privacy Settings</string>
+	<key>Abrir carpeta</key>
+	<string>Open folder</string>
+	<key>Abrir carpeta %@</key>
+	<string>Open folder %@</string>
+	<key>Abrir el repositorio de Folder Size</key>
+	<string>Open the Folder Size repository</string>
+	<key>Abrir en Terminal</key>
+	<string>Open in Terminal</string>
+	<key>Acceso al disco</key>
+	<string>Disk Access</string>
+	<key>Acceso completo al disco</key>
+	<string>Full Disk Access</string>
+	<key>Aceptar</key>
+	<string>OK</string>
+	<key>Acerca de Folder Size</key>
+	<string>About Folder Size</string>
+	<key>Analizando el espacio</key>
+	<string>Analyzing disk space</string>
+	<key>Analizando…</key>
+	<string>Analyzing…</string>
+	<key>Analizar</key>
+	<string>Scan</string>
+	<key>Analizar carpetas ocultas</key>
+	<string>Scan hidden folders</string>
+	<key>Analizar de nuevo</key>
+	<string>Scan Again</string>
+	<key>Archivo</key>
+	<string>File</string>
+	<key>Arrastra para cambiar el ancho del árbol</key>
+	<string>Drag to resize the folder tree</string>
+	<key>Arrastra para cambiar el tamaño de la lista</key>
+	<string>Drag to resize the list</string>
+	<key>Ascendente</key>
+	<string>Ascending</string>
+	<key>Automático (idioma del sistema)</key>
+	<string>Automatic (system language)</string>
+	<key>Bajo demanda</key>
+	<string>On demand</string>
+	<key>Cambiar ancho del árbol</key>
+	<string>Resize folder tree</string>
+	<key>Cambiar tamaño de la lista</key>
+	<string>Resize list</string>
+	<key>Cancelar</key>
+	<string>Cancel</string>
+	<key>Carga los niveles profundos al abrirlos. Usa menos memoria.</key>
+	<string>Loads deeper levels when opened. Uses less memory.</string>
+	<key>Carpeta</key>
+	<string>Folder</string>
+	<key>Cerrar</key>
+	<string>Close</string>
+	<key>Completo</key>
+	<string>Full</string>
+	<key>Configuración</key>
+	<string>Settings</string>
+	<key>Contraer</key>
+	<string>Collapse</string>
+	<key>Copiar ruta</key>
+	<string>Copy Path</string>
+	<key>Creación</key>
+	<string>Created</string>
+	<key>Descargo de responsabilidad</key>
+	<string>Disclaimer</string>
+	<key>Descendente</key>
+	<string>Descending</string>
+	<key>Detalle del análisis</key>
+	<string>Scan detail</string>
+	<key>El análisis tiene resultados parciales por problemas de acceso.</key>
+	<string>The scan is incomplete because some items could not be accessed.</string>
+	<key>Elegir carpeta o volumen</key>
+	<string>Choose Folder or Volume</string>
+	<key>Elige una carpeta o volumen para ver qué ocupa más.</key>
+	<string>Choose a folder or volume to see what is taking up space.</string>
+	<key>En Privacidad y seguridad, abre Acceso total al disco y añade o activa Folder Size. Después vuelve a analizar la carpeta.</key>
+	<string>Under Privacy &amp; Security, open Full Disk Access and add or enable Folder Size. Then scan the folder again.</string>
+	<key>Español</key>
+	<string>Spanish</string>
+	<key>Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable.</key>
+	<string>Estimated as the difference between capacity available for important usage and free space. It can change and is not an exact measurement of purgeable space.</string>
+	<key>Expandir</key>
+	<string>Expand</string>
+	<key>Explora el espacio ocupado por archivos y carpetas en tu Mac.</key>
+	<string>Explore the space used by files and folders on your Mac.</string>
+	<key>Explora tu espacio</key>
+	<string>Explore your space</string>
+	<key>Guarda todos los niveles para explorarlos. Requiere más memoria.</key>
+	<string>Keeps all levels available for browsing. Requires more memory.</string>
+	<key>Idioma</key>
+	<string>Language</string>
+	<key>Inglés</key>
+	<string>English</string>
+	<key>La aplicación se proporciona tal cual, sin garantías. Las cifras pueden ser parciales o aproximadas y no predicen necesariamente el espacio que se liberará. Revisa los archivos antes de moverlos a la papelera y mantén copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso.</key>
+	<string>The app is provided as is, without warranty. Figures may be incomplete or approximate and do not necessarily predict the space that will be freed. Check files before moving them to the Trash and keep backups. To the extent permitted by law, the authors are not liable for loss or damage arising from its use.</string>
+	<key>La profundidad de los gráficos no limita el cálculo del espacio.</key>
+	<string>Chart depth does not limit the space calculation.</string>
+	<key>Las carpetas ocultas se excluyeron del análisis</key>
+	<string>Hidden folders were excluded from the scan</string>
+	<key>Los permisos de archivos y carpetas de otras cuentas también pueden limitar el acceso. Las rutas omitidas aparecen en Incidencias.</key>
+	<string>Permissions on files and folders belonging to other accounts may also limit access. Skipped paths are listed under Issues.</string>
+	<key>Modificación</key>
+	<string>Modified</string>
+	<key>Mosaico</key>
+	<string>Treemap</string>
+	<key>Mostrar en Finder</key>
+	<string>Show in Finder</string>
+	<key>Mostrar ocultos</key>
+	<string>Show hidden items</string>
+	<key>Mostrar u ocultar elementos del análisis</key>
+	<string>Show or hide scanned items</string>
+	<key>Mostrar árbol de carpetas</key>
+	<string>Show folder tree</string>
+	<key>Mover a la papelera</key>
+	<string>Move to Trash</string>
+	<key>Mover a la papelera…</key>
+	<string>Move to Trash…</string>
+	<key>Niveles</key>
+	<string>Levels</string>
+	<key>Niveles en los gráficos</key>
+	<string>Chart levels</string>
+	<key>No se ha podido completar la acción</key>
+	<string>Could Not Complete the Action</string>
+	<key>No se pudieron consultar los metadatos: %@</key>
+	<string>Could not read metadata: %@</string>
+	<key>Nombre</key>
+	<string>Name</string>
+	<key>Ocultar carpetas menores de</key>
+	<string>Hide folders smaller than</string>
+	<key>Ocultar árbol de carpetas</key>
+	<string>Hide folder tree</string>
+	<key>Ordenar por %@</key>
+	<string>Sort by %@</string>
+	<key>Propiedades</key>
+	<string>Properties</string>
+	<key>Puedes permitir el acceso a Folder Size en Ajustes del Sistema para analizar más ubicaciones protegidas.</key>
+	<string>You can allow Folder Size access in System Settings to scan more protected locations.</string>
+	<key>Recuperable estimado: %@</key>
+	<string>Estimated reclaimable: %@</string>
+	<key>Recuperable estimado: no disponible</key>
+	<string>Estimated reclaimable: unavailable</string>
+	<key>Repositorio en GitHub</key>
+	<string>GitHub Repository</string>
+	<key>Resultado parcial</key>
+	<string>Incomplete result</string>
+	<key>Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.</key>
+	<string>Incomplete result: the size of some content could not be calculated. See Issues for details.</string>
+	<key>Ruta</key>
+	<string>Path</string>
+	<key>Se moverá la carpeta y todo su contenido.</key>
+	<string>The folder and all its contents will be moved.</string>
+	<key>Selecciona una carpeta o un volumen para analizar su espacio.</key>
+	<string>Choose a folder or volume to analyze its space.</string>
+	<key>Sin ordenar</key>
+	<string>Not sorted</string>
+	<key>Subir un nivel</key>
+	<string>Go up one level</string>
+	<key>Tamaño</key>
+	<string>Size</string>
+	<key>Tamaño analizado</key>
+	<string>Scanned size</string>
+	<key>Tamaño lógico</key>
+	<string>Logical size</string>
+	<key>Versión %@ (%@)</key>
+	<string>Version %@ (%@)</string>
+	<key>Vista</key>
+	<string>View</string>
+	<key>Volumen: %@ total · %@ libre (%@ libre)</key>
+	<string>Volume: %@ total · %@ free (%@ free)</string>
+	<key>tamaño asignado no disponible</key>
+	<string>allocated size unavailable</string>
+	<key>¿Mover a la papelera?</key>
+	<string>Move to Trash?</string>
+</dict>
+</plist>
