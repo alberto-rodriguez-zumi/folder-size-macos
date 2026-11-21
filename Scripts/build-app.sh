@@ -11,6 +11,7 @@ for arch in arm64 x86_64; do
     swiftc -O -target "$arch-apple-macosx15.0" -parse-as-library "$project_dir"/App/*.swift -o "$build_dir/FolderSize-$arch"
 done
 lipo -create "$build_dir/FolderSize-arm64" "$build_dir/FolderSize-x86_64" -output "$app_dir/Contents/MacOS/FolderSize"
+cp -R "$project_dir/Resources/"*.lproj "$app_dir/Contents/Resources/"
 cp "$project_dir/Assets/AppIcon.icns" "$app_dir/Contents/Resources/AppIcon.icns"
 cat > "$app_dir/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -20,8 +21,10 @@ cat > "$app_dir/Contents/Info.plist" <<'PLIST'
 <key>CFBundleExecutable</key><string>FolderSize</string>
 <key>CFBundleIdentifier</key><string>com.zumi.foldersize</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.1.0</string>
-<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleDevelopmentRegion</key><string>en</string>
+<key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
+<key>CFBundleShortVersionString</key><string>0.2.0</string>
+<key>CFBundleVersion</key><string>2</string>
 <key>CFBundleIconFile</key><string>AppIcon</string>
 <key>LSMinimumSystemVersion</key><string>15.0</string>
 <key>NSHighResolutionCapable</key><true/>

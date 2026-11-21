@@ -10,6 +10,12 @@ Folder Size es una aplicación para macOS que ayuda a encontrar los archivos y c
 
 La versión preliminar generada para desarrollo está firmada localmente y no está notarizada: no debe confundirse con una versión pública lista para distribuir.
 
+## Idioma
+
+Folder Size usa español cuando el idioma del sistema es una variante del español e inglés para los demás idiomas. En **Folder Size → Configuración** puedes elegir español, inglés o automático; la elección se conserva entre ejecuciones. Los cuadros y menús propios de macOS pueden seguir el idioma del sistema.
+
+Las traducciones se mantienen en `Resources/<idioma>.lproj/Localizable.strings`; añade el código del idioma a `AppLanguage.supported` y a `CFBundleLocalizations` para incorporar otra traducción.
+
 ## Uso
 
 1. Abre Folder Size. Elige entre **Bajo demanda** —opción predeterminada, con menor consumo de memoria— y **Completo**, que conserva más detalle en memoria. Decide si quieres analizar carpetas ocultas y cuántos niveles mostrar en los gráficos.

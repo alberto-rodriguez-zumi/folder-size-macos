@@ -16,6 +16,7 @@ struct Sector: Identifiable {
 }
 
 struct VisualExplorer: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     let root: Entry
     let scanRoot: URL
     let radial: Bool
@@ -221,12 +222,12 @@ struct VisualExplorer: View {
             .contextMenu {
                 if let entry = hovered {
                     if entry.directory {
-                        Button("Abrir", systemImage: "folder") { open(entry) }
-                        Button("Analizar", systemImage: "arrow.clockwise") { analyze(entry) }
+                        Button(L("Abrir"), systemImage: "folder") { open(entry) }
+                        Button(L("Analizar"), systemImage: "arrow.clockwise") { analyze(entry) }
                     }
-                    Button("Mostrar en Finder", systemImage: "folder") { showInFinder(entry) }
-                    Button("Abrir en Terminal", systemImage: "terminal") { openTerminal(entry) }
-                    Button("Propiedades", systemImage: "info.circle") { showProperties(entry) }
+                    Button(L("Mostrar en Finder"), systemImage: "folder") { showInFinder(entry) }
+                    Button(L("Abrir en Terminal"), systemImage: "terminal") { openTerminal(entry) }
+                    Button(L("Propiedades"), systemImage: "info.circle") { showProperties(entry) }
                 }
             }
     }
@@ -235,7 +236,7 @@ struct VisualExplorer: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(entry.id.lastPathComponent).fontWeight(.medium).lineLimit(1)
             Text(relativePath(entry.id)).font(.caption).lineLimit(2).truncationMode(.middle)
-            Text(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file) + (entry.partial ? " · parcial" : ""))
+            Text(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file) + (entry.partial ? L(" · parcial") : ""))
                 .font(.caption)
         }
         .padding(8)
@@ -277,12 +278,12 @@ struct VisualExplorer: View {
                             if tile.rect.width > 55 && tile.rect.height > 18 {
                                 VStack(alignment: .leading, spacing: 1) {
                                     if parents.contains(tile.entry.id.standardizedFileURL.path) {
-                                        Text("\(tile.entry.id.lastPathComponent) · \(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file))\(tile.entry.partial ? " · parcial" : "")").lineLimit(1)
+                                        Text("\(tile.entry.id.lastPathComponent) · \(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file))\(tile.entry.partial ? L(" · parcial") : "")").lineLimit(1)
                                     } else {
                                         Text(tile.entry.id.lastPathComponent).lineLimit(1)
                                     }
                                     if tile.rect.height > 34 && !parents.contains(tile.entry.id.standardizedFileURL.path) {
-                                        Text(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file) + (tile.entry.partial ? " · parcial" : ""))
+                                        Text(ByteCountFormatter.string(fromByteCount: tile.entry.size, countStyle: .file) + (tile.entry.partial ? L(" · parcial") : ""))
                                             .lineLimit(1)
                                     }
                                 }
@@ -324,6 +325,7 @@ struct RingSegment: Shape {
 }
 
 struct DirectoryTree: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     let entry: Entry
     let current: URL
     let showHidden: Bool
@@ -345,8 +347,8 @@ struct DirectoryTree: View {
                 Spacer(minLength: 2)
                 if entry.partial {
                     Image(systemName: "exclamationmark.circle")
-                        .accessibilityLabel("Resultado parcial")
-                        .help("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.")
+                        .accessibilityLabel(L("Resultado parcial"))
+                        .help(L("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas."))
                 }
             }
             .padding(.vertical, 3).padding(.horizontal, 6)
@@ -355,13 +357,13 @@ struct DirectoryTree: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(entry.partial ? "Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.\n\(entry.id.path)" : entry.id.path)
+        .help(entry.partial ? L("Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.") + "\n" + entry.id.path : entry.id.path)
         .contextMenu {
-            Button("Abrir", systemImage: "folder") { open(entry) }
-            Button("Analizar", systemImage: "arrow.clockwise") { analyze(entry) }
-            Button("Mostrar en Finder", systemImage: "folder") { showInFinder(entry) }
-            Button("Abrir en Terminal", systemImage: "terminal") { openTerminal(entry) }
-            Button("Propiedades", systemImage: "info.circle") { showProperties(entry) }
+            Button(L("Abrir"), systemImage: "folder") { open(entry) }
+            Button(L("Analizar"), systemImage: "arrow.clockwise") { analyze(entry) }
+            Button(L("Mostrar en Finder"), systemImage: "folder") { showInFinder(entry) }
+            Button(L("Abrir en Terminal"), systemImage: "terminal") { openTerminal(entry) }
+            Button(L("Propiedades"), systemImage: "info.circle") { showProperties(entry) }
         }
     }
 
@@ -380,7 +382,7 @@ struct DirectoryTree: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("\(isExpanded ? "Contraer" : "Expandir") \(entry.id.lastPathComponent)")
+                    .accessibilityLabel(LF("%@ %@", L(isExpanded ? "Contraer" : "Expandir"), entry.id.lastPathComponent))
                 }
                 row
             }

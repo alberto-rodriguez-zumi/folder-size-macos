@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ResizableResults<Chart: View, Results: View>: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     @ViewBuilder let chart: () -> Chart
     @ViewBuilder let list: () -> Results
 
@@ -29,7 +30,7 @@ struct ResizableResults<Chart: View, Results: View>: View {
                     .frame(height: dividerHeight)
                     .zIndex(1)
                     .accessibilityElement()
-                    .accessibilityLabel("Cambiar tamaño de la lista")
+                    .accessibilityLabel(L("Cambiar tamaño de la lista"))
                     .accessibilityAdjustableAction { direction in
                         switch direction {
                         case .increment: listHeight = clampedHeight(listHeight + 30, available: geometry.size.height)
@@ -37,7 +38,7 @@ struct ResizableResults<Chart: View, Results: View>: View {
                         @unknown default: break
                         }
                     }
-                    .help("Arrastra para cambiar el tamaño de la lista")
+                    .help(L("Arrastra para cambiar el tamaño de la lista"))
                 list().frame(height: height)
             }
         }

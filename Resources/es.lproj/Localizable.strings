@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key> · parcial</key>
+	<string> · parcial</string>
+	<key>%@ %@</key>
+	<string>%@ %@</string>
+	<key>%@ elemento examinado</key>
+	<string>%@ elemento examinado</string>
+	<key>%@ elementos examinados</key>
+	<string>%@ elementos examinados</string>
+	<key>%lld incidencia</key>
+	<string>%lld incidencia</string>
+	<key>%lld incidencias</key>
+	<string>%lld incidencias</string>
+	<key>Abrir</key>
+	<string>Abrir</string>
+	<key>Abrir Ajustes de privacidad</key>
+	<string>Abrir Ajustes de privacidad</string>
+	<key>Abrir carpeta</key>
+	<string>Abrir carpeta</string>
+	<key>Abrir carpeta %@</key>
+	<string>Abrir carpeta %@</string>
+	<key>Abrir el repositorio de Folder Size</key>
+	<string>Abrir el repositorio de Folder Size</string>
+	<key>Abrir en Terminal</key>
+	<string>Abrir en Terminal</string>
+	<key>Acceso al disco</key>
+	<string>Acceso al disco</string>
+	<key>Acceso completo al disco</key>
+	<string>Acceso completo al disco</string>
+	<key>Aceptar</key>
+	<string>Aceptar</string>
+	<key>Acerca de Folder Size</key>
+	<string>Acerca de Folder Size</string>
+	<key>Analizando el espacio</key>
+	<string>Analizando el espacio</string>
+	<key>Analizando…</key>
+	<string>Analizando…</string>
+	<key>Analizar</key>
+	<string>Analizar</string>
+	<key>Analizar carpetas ocultas</key>
+	<string>Analizar carpetas ocultas</string>
+	<key>Analizar de nuevo</key>
+	<string>Analizar de nuevo</string>
+	<key>Archivo</key>
+	<string>Archivo</string>
+	<key>Arrastra para cambiar el ancho del árbol</key>
+	<string>Arrastra para cambiar el ancho del árbol</string>
+	<key>Arrastra para cambiar el tamaño de la lista</key>
+	<string>Arrastra para cambiar el tamaño de la lista</string>
+	<key>Ascendente</key>
+	<string>Ascendente</string>
+	<key>Automático (idioma del sistema)</key>
+	<string>Automático (idioma del sistema)</string>
+	<key>Bajo demanda</key>
+	<string>Bajo demanda</string>
+	<key>Cambiar ancho del árbol</key>
+	<string>Cambiar ancho del árbol</string>
+	<key>Cambiar tamaño de la lista</key>
+	<string>Cambiar tamaño de la lista</string>
+	<key>Cancelar</key>
+	<string>Cancelar</string>
+	<key>Carga los niveles profundos al abrirlos. Usa menos memoria.</key>
+	<string>Carga los niveles profundos al abrirlos. Usa menos memoria.</string>
+	<key>Carpeta</key>
+	<string>Carpeta</string>
+	<key>Cerrar</key>
+	<string>Cerrar</string>
+	<key>Completo</key>
+	<string>Completo</string>
+	<key>Configuración</key>
+	<string>Configuración</string>
+	<key>Contraer</key>
+	<string>Contraer</string>
+	<key>Copiar ruta</key>
+	<string>Copiar ruta</string>
+	<key>Creación</key>
+	<string>Creación</string>
+	<key>Descargo de responsabilidad</key>
+	<string>Descargo de responsabilidad</string>
+	<key>Descendente</key>
+	<string>Descendente</string>
+	<key>Detalle del análisis</key>
+	<string>Detalle del análisis</string>
+	<key>El análisis tiene resultados parciales por problemas de acceso.</key>
+	<string>El análisis tiene resultados parciales por problemas de acceso.</string>
+	<key>Elegir carpeta o volumen</key>
+	<string>Elegir carpeta o volumen</string>
+	<key>Elige una carpeta o volumen para ver qué ocupa más.</key>
+	<string>Elige una carpeta o volumen para ver qué ocupa más.</string>
+	<key>En Privacidad y seguridad, abre Acceso total al disco y añade o activa Folder Size. Después vuelve a analizar la carpeta.</key>
+	<string>En Privacidad y seguridad, abre Acceso total al disco y añade o activa Folder Size. Después vuelve a analizar la carpeta.</string>
+	<key>Español</key>
+	<string>Español</string>
+	<key>Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable.</key>
+	<string>Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable.</string>
+	<key>Expandir</key>
+	<string>Expandir</string>
+	<key>Explora el espacio ocupado por archivos y carpetas en tu Mac.</key>
+	<string>Explora el espacio ocupado por archivos y carpetas en tu Mac.</string>
+	<key>Explora tu espacio</key>
+	<string>Explora tu espacio</string>
+	<key>Guarda todos los niveles para explorarlos. Requiere más memoria.</key>
+	<string>Guarda todos los niveles para explorarlos. Requiere más memoria.</string>
+	<key>Idioma</key>
+	<string>Idioma</string>
+	<key>Inglés</key>
+	<string>Inglés</string>
+	<key>La aplicación se proporciona tal cual, sin garantías. Las cifras pueden ser parciales o aproximadas y no predicen necesariamente el espacio que se liberará. Revisa los archivos antes de moverlos a la papelera y mantén copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso.</key>
+	<string>La aplicación se proporciona tal cual, sin garantías. Las cifras pueden ser parciales o aproximadas y no predicen necesariamente el espacio que se liberará. Revisa los archivos antes de moverlos a la papelera y mantén copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso.</string>
+	<key>La profundidad de los gráficos no limita el cálculo del espacio.</key>
+	<string>La profundidad de los gráficos no limita el cálculo del espacio.</string>
+	<key>Las carpetas ocultas se excluyeron del análisis</key>
+	<string>Las carpetas ocultas se excluyeron del análisis</string>
+	<key>Los permisos de archivos y carpetas de otras cuentas también pueden limitar el acceso. Las rutas omitidas aparecen en Incidencias.</key>
+	<string>Los permisos de archivos y carpetas de otras cuentas también pueden limitar el acceso. Las rutas omitidas aparecen en Incidencias.</string>
+	<key>Modificación</key>
+	<string>Modificación</string>
+	<key>Mosaico</key>
+	<string>Mosaico</string>
+	<key>Mostrar en Finder</key>
+	<string>Mostrar en Finder</string>
+	<key>Mostrar ocultos</key>
+	<string>Mostrar ocultos</string>
+	<key>Mostrar u ocultar elementos del análisis</key>
+	<string>Mostrar u ocultar elementos del análisis</string>
+	<key>Mostrar árbol de carpetas</key>
+	<string>Mostrar árbol de carpetas</string>
+	<key>Mover a la papelera</key>
+	<string>Mover a la papelera</string>
+	<key>Mover a la papelera…</key>
+	<string>Mover a la papelera…</string>
+	<key>Niveles</key>
+	<string>Niveles</string>
+	<key>Niveles en los gráficos</key>
+	<string>Niveles en los gráficos</string>
+	<key>No se ha podido completar la acción</key>
+	<string>No se ha podido completar la acción</string>
+	<key>No se pudieron consultar los metadatos: %@</key>
+	<string>No se pudieron consultar los metadatos: %@</string>
+	<key>Nombre</key>
+	<string>Nombre</string>
+	<key>Ocultar carpetas menores de</key>
+	<string>Ocultar carpetas menores de</string>
+	<key>Ocultar árbol de carpetas</key>
+	<string>Ocultar árbol de carpetas</string>
+	<key>Ordenar por %@</key>
+	<string>Ordenar por %@</string>
+	<key>Propiedades</key>
+	<string>Propiedades</string>
+	<key>Puedes permitir el acceso a Folder Size en Ajustes del Sistema para analizar más ubicaciones protegidas.</key>
+	<string>Puedes permitir el acceso a Folder Size en Ajustes del Sistema para analizar más ubicaciones protegidas.</string>
+	<key>Recuperable estimado: %@</key>
+	<string>Recuperable estimado: %@</string>
+	<key>Recuperable estimado: no disponible</key>
+	<string>Recuperable estimado: no disponible</string>
+	<key>Repositorio en GitHub</key>
+	<string>Repositorio en GitHub</string>
+	<key>Resultado parcial</key>
+	<string>Resultado parcial</string>
+	<key>Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.</key>
+	<string>Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.</string>
+	<key>Ruta</key>
+	<string>Ruta</string>
+	<key>Se moverá la carpeta y todo su contenido.</key>
+	<string>Se moverá la carpeta y todo su contenido.</string>
+	<key>Selecciona una carpeta o un volumen para analizar su espacio.</key>
+	<string>Selecciona una carpeta o un volumen para analizar su espacio.</string>
+	<key>Sin ordenar</key>
+	<string>Sin ordenar</string>
+	<key>Subir un nivel</key>
+	<string>Subir un nivel</string>
+	<key>Tamaño</key>
+	<string>Tamaño</string>
+	<key>Tamaño analizado</key>
+	<string>Tamaño analizado</string>
+	<key>Tamaño lógico</key>
+	<string>Tamaño lógico</string>
+	<key>Versión %@ (%@)</key>
+	<string>Versión %@ (%@)</string>
+	<key>Vista</key>
+	<string>Vista</string>
+	<key>Volumen: %@ total · %@ libre (%@ libre)</key>
+	<string>Volumen: %@ total · %@ libre (%@ libre)</string>
+	<key>tamaño asignado no disponible</key>
+	<string>tamaño asignado no disponible</string>
+	<key>¿Mover a la papelera?</key>
+	<string>¿Mover a la papelera?</string>
+</dict>
+</plist>

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ScanStartView: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     @ObservedObject var state: ScanState
     @Binding var displayDepth: Int
 
@@ -33,8 +34,8 @@ struct ScanStartView: View {
 
                 if state.scanning {
                     VStack(spacing: 8) {
-                        Text("Analizando el espacio").font(.title2.weight(.semibold))
-                        Text("\(state.scannedItems.formatted()) elementos examinados")
+                        Text(L("Analizando el espacio")).font(.title2.weight(.semibold))
+                        Text(LF(state.scannedItems == 1 ? "%@ elemento examinado" : "%@ elementos examinados", state.scannedItems.formatted()))
                             .foregroundStyle(.secondary)
                     }
                     ProgressView().progressViewStyle(.linear).frame(maxWidth: 380)
@@ -47,43 +48,43 @@ struct ScanStartView: View {
                     }
                     .frame(maxWidth: 480)
                     .frame(height: 56)
-                    Button("Cancelar", systemImage: "xmark", action: state.cancel).keyboardShortcut(.cancelAction)
+                    Button(L("Cancelar"), systemImage: "xmark", action: state.cancel).keyboardShortcut(.cancelAction)
                 } else {
                     VStack(spacing: 8) {
-                        Text("Explora tu espacio").font(.title2.weight(.semibold))
-                        Text("Elige una carpeta o volumen para ver qué ocupa más.")
+                        Text(L("Explora tu espacio")).font(.title2.weight(.semibold))
+                        Text(L("Elige una carpeta o volumen para ver qué ocupa más."))
                             .foregroundStyle(.secondary)
                     }
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 5) {
-                            Text("Detalle del análisis").font(.headline)
-                            Picker("Detalle del análisis", selection: $state.fullDetail) {
-                                Text("Bajo demanda").tag(false)
-                                Text("Completo").tag(true)
+                            Text(L("Detalle del análisis")).font(.headline)
+                            Picker(L("Detalle del análisis"), selection: $state.fullDetail) {
+                                Text(L("Bajo demanda")).tag(false)
+                                Text(L("Completo")).tag(true)
                             }
                             .pickerStyle(.segmented).labelsHidden()
-                            Text(state.fullDetail ? "Guarda todos los niveles para explorarlos. Requiere más memoria." : "Carga los niveles profundos al abrirlos. Usa menos memoria.")
+                            Text(state.fullDetail ? L("Guarda todos los niveles para explorarlos. Requiere más memoria.") : L("Carga los niveles profundos al abrirlos. Usa menos memoria."))
                                 .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                         }
                         Divider()
                         Toggle(isOn: $state.includeHiddenFolders) {
-                            Label("Analizar carpetas ocultas", systemImage: "eye.slash")
+                            Label(L("Analizar carpetas ocultas"), systemImage: "eye.slash")
                         }
                         HStack {
-                            Label("Niveles en los gráficos", systemImage: "square.stack.3d.up")
+                            Label(L("Niveles en los gráficos"), systemImage: "square.stack.3d.up")
                             Spacer()
-                            Picker("Niveles en los gráficos", selection: $displayDepth) {
+                            Picker(L("Niveles en los gráficos"), selection: $displayDepth) {
                                 ForEach(1...5, id: \.self) { Text("\($0)").tag($0) }
                             }.labelsHidden().frame(width: 65)
                         }
-                        Text("La profundidad de los gráficos no limita el cálculo del espacio.")
+                        Text(L("La profundidad de los gráficos no limita el cálculo del espacio."))
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     .padding(18)
                     .frame(maxWidth: 460, alignment: .leading)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
                     Button(action: state.choose) {
-                        Label("Elegir carpeta o volumen", systemImage: "folder.badge.plus")
+                        Label(L("Elegir carpeta o volumen"), systemImage: "folder.badge.plus")
                     }
                     .buttonStyle(.borderedProminent).controlSize(.large)
                     PrivacyAccessHelp()

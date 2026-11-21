@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ResizableSidebar<Sidebar: View, Content: View>: View {
+    @AppStorage(AppLanguage.preferenceKey) private var preferredLanguage = AppLanguage.automatic
     @Binding var sidebarWidth: CGFloat
     let isVisible: Bool
     @ViewBuilder let sidebar: () -> Sidebar
@@ -30,7 +31,7 @@ struct ResizableSidebar<Sidebar: View, Content: View>: View {
                         .frame(width: dividerWidth)
                         .zIndex(1)
                         .accessibilityElement()
-                        .accessibilityLabel("Cambiar ancho del árbol")
+                        .accessibilityLabel(L("Cambiar ancho del árbol"))
                         .accessibilityAdjustableAction { direction in
                             switch direction {
                             case .increment: sidebarWidth = clampedWidth(initialWidth + 30, available: geometry.size.width)
@@ -38,7 +39,7 @@ struct ResizableSidebar<Sidebar: View, Content: View>: View {
                             @unknown default: break
                             }
                         }
-                        .help("Arrastra para cambiar el ancho del árbol")
+                        .help(L("Arrastra para cambiar el ancho del árbol"))
                 }
                 content().frame(maxWidth: .infinity, maxHeight: .infinity)
             }
