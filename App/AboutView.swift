@@ -21,10 +21,10 @@ struct AboutView: View {
             }
             Text(L("Explora el espacio ocupado por archivos y carpetas en tu Mac."))
                 .multilineTextAlignment(.center)
-            Link(destination: URL(string: "https://github.com/alberto-rodriguez-zumi/folder-size-macos")!) {
-                Label(L("Repositorio en GitHub"), systemImage: "arrow.up.right.square")
+            Link(destination: URL(string: "https://alberto-rodriguez-zumi.github.io/folder-size-macos/")!) {
+                Label(L("Sitio web de Folder Size"), systemImage: "arrow.up.right.square")
             }
-            .help(L("Abrir el repositorio de Folder Size"))
+            .help(L("Abrir la web de Folder Size"))
             Divider()
             VStack(alignment: .leading, spacing: 6) {
                 Text(L("Descargo de responsabilidad")).font(.headline)

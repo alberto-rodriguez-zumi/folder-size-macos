@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key> · parcial</key>
+	<string> · 一部のみ</string>
+	<key>%@ %@</key>
+	<string>%@ %@</string>
+	<key>%@ elemento examinado</key>
+	<string>%@ 項目を解析しました</string>
+	<key>%@ elementos examinados</key>
+	<string>%@ 項目を解析しました</string>
+	<key>%lld incidencia</key>
+	<string>問題 %lld 件</string>
+	<key>%lld incidencias</key>
+	<string>問題 %lld 件</string>
+	<key>Abrir</key>
+	<string>開く</string>
+	<key>Abrir Ajustes de privacidad</key>
+	<string>プライバシー設定を開く</string>
+	<key>Abrir carpeta</key>
+	<string>フォルダを開く</string>
+	<key>Abrir carpeta %@</key>
+	<string>フォルダ「%@」を開く</string>
+	<key>Abrir en Terminal</key>
+	<string>ターミナルで開く</string>
+	<key>Abrir la web de Folder Size</key>
+	<string>Folder Size のウェブサイトを開く</string>
+	<key>Acceso al disco</key>
+	<string>ディスクアクセス</string>
+	<key>Acceso completo al disco</key>
+	<string>フルディスクアクセス</string>
+	<key>Aceptar</key>
+	<string>OK</string>
+	<key>Acerca de Folder Size</key>
+	<string>Folder Size について</string>
+	<key>Analizando el espacio</key>
+	<string>ディスク容量を解析中</string>
+	<key>Analizando…</key>
+	<string>解析中…</string>
+	<key>Analizar</key>
+	<string>解析</string>
+	<key>Analizar carpetas ocultas</key>
+	<string>隠しフォルダを解析</string>
+	<key>Analizar de nuevo</key>
+	<string>再解析</string>
+	<key>Archivo</key>
+	<string>ファイル</string>
+	<key>Arrastra para cambiar el ancho del árbol</key>
+	<string>ドラッグしてフォルダツリーの幅を変更</string>
+	<key>Arrastra para cambiar el tamaño de la lista</key>
+	<string>ドラッグしてリストのサイズを変更</string>
+	<key>Ascendente</key>
+	<string>昇順</string>
+	<key>Automático (idioma del sistema)</key>
+	<string>自動（システムの言語）</string>
+	<key>Bajo demanda</key>
+	<string>オンデマンド</string>
+	<key>Cambiar ancho del árbol</key>
+	<string>フォルダツリーの幅を変更</string>
+	<key>Cambiar tamaño de la lista</key>
+	<string>リストのサイズを変更</string>
+	<key>Cancelar</key>
+	<string>キャンセル</string>
+	<key>Carga los niveles profundos al abrirlos. Usa menos memoria.</key>
+	<string>開いたときに下の階層を読み込みます。メモリ使用量を抑えます。</string>
+	<key>Carpeta</key>
+	<string>フォルダ</string>
+	<key>Cerrar</key>
+	<string>閉じる</string>
+	<key>Completo</key>
+	<string>すべて</string>
+	<key>Configuración</key>
+	<string>設定</string>
+	<key>Contraer</key>
+	<string>閉じる</string>
+	<key>Copiar ruta</key>
+	<string>パスをコピー</string>
+	<key>Creación</key>
+	<string>作成日</string>
+	<key>Descargo de responsabilidad</key>
+	<string>免責事項</string>
+	<key>Descendente</key>
+	<string>降順</string>
+	<key>Detalle del análisis</key>
+	<string>解析の詳細</string>
+	<key>El análisis tiene resultados parciales por problemas de acceso.</key>
+	<string>アクセスできない項目があるため、解析結果は一部のみです。</string>
+	<key>Elegir carpeta o volumen</key>
+	<string>フォルダまたはボリュームを選択</string>
+	<key>Elige una carpeta o volumen para ver qué ocupa más.</key>
+	<string>フォルダまたはボリュームを選択して、容量を使用している項目を確認します。</string>
+	<key>En Privacidad y seguridad, abre Acceso total al disco y añade o activa Folder Size. Después vuelve a analizar la carpeta.</key>
+	<string>「プライバシーとセキュリティ」の「フルディスクアクセス」で Folder Size を追加または有効にしてから、フォルダを再解析してください。</string>
+	<key>Español</key>
+	<string>スペイン語</string>
+	<key>Estimación calculada como la diferencia entre la capacidad disponible para uso importante y el espacio libre. Puede cambiar y no representa una medición exacta del espacio purgable.</key>
+	<string>重要な用途に利用可能な容量と空き容量の差から推定しています。値は変動することがあり、削除可能な領域の正確な測定値ではありません。</string>
+	<key>Expandir</key>
+	<string>展開</string>
+	<key>Explora el espacio ocupado por archivos y carpetas en tu Mac.</key>
+	<string>Mac のファイルやフォルダが使用している容量を確認できます。</string>
+	<key>Explora tu espacio</key>
+	<string>ストレージを確認</string>
+	<key>Guarda todos los niveles para explorarlos. Requiere más memoria.</key>
+	<string>すべての階層を保持して閲覧できます。より多くのメモリが必要です。</string>
+	<key>Idioma</key>
+	<string>言語</string>
+	<key>Inglés</key>
+	<string>英語</string>
+	<key>La aplicación se proporciona tal cual, sin garantías. Las cifras pueden ser parciales o aproximadas y no predicen necesariamente el espacio que se liberará. Revisa los archivos antes de moverlos a la papelera y mantén copias de seguridad. En la medida permitida por la ley, sus autores no se responsabilizan de pérdidas o daños derivados de su uso.</key>
+	<string>本アプリは現状のまま提供され、保証はありません。表示される数値は不完全または概算の場合があり、解放される容量を必ずしも示しません。ゴミ箱に移動する前にファイルを確認し、バックアップを保管してください。法律で認められる範囲において、作者は本アプリの使用によって生じた損失や損害について責任を負いません。</string>
+	<key>La profundidad de los gráficos no limita el cálculo del espacio.</key>
+	<string>グラフの階層数は容量の計算には影響しません。</string>
+	<key>Las carpetas ocultas se excluyeron del análisis</key>
+	<string>隠しフォルダは解析から除外されました</string>
+	<key>Los permisos de archivos y carpetas de otras cuentas también pueden limitar el acceso. Las rutas omitidas aparecen en Incidencias.</key>
+	<string>ほかのアカウントのファイルやフォルダのアクセス権によってもアクセスが制限される場合があります。スキップされたパスは「問題」に表示されます。</string>
+	<key>Modificación</key>
+	<string>変更日</string>
+	<key>Mosaico</key>
+	<string>ツリーマップ</string>
+	<key>Mostrar en Finder</key>
+	<string>Finder に表示</string>
+	<key>Mostrar ocultos</key>
+	<string>隠し項目を表示</string>
+	<key>Mostrar u ocultar elementos del análisis</key>
+	<string>解析した項目を表示または非表示</string>
+	<key>Mostrar árbol de carpetas</key>
+	<string>フォルダツリーを表示</string>
+	<key>Mover a la papelera</key>
+	<string>ゴミ箱に移動</string>
+	<key>Mover a la papelera…</key>
+	<string>ゴミ箱に移動…</string>
+	<key>Niveles</key>
+	<string>階層</string>
+	<key>Niveles en los gráficos</key>
+	<string>グラフの階層数</string>
+	<key>No se ha podido completar la acción</key>
+	<string>操作を完了できませんでした</string>
+	<key>No se pudieron consultar los metadatos: %@</key>
+	<string>メタデータを読み込めませんでした: %@</string>
+	<key>Nombre</key>
+	<string>名前</string>
+	<key>Ocultar carpetas menores de</key>
+	<string>次のサイズ未満のフォルダを隠す</string>
+	<key>Ocultar árbol de carpetas</key>
+	<string>フォルダツリーを隠す</string>
+	<key>Ordenar por %@</key>
+	<string>%@で並べ替え</string>
+	<key>Propiedades</key>
+	<string>プロパティ</string>
+	<key>Puedes permitir el acceso a Folder Size en Ajustes del Sistema para analizar más ubicaciones protegidas.</key>
+	<string>システム設定で Folder Size にアクセスを許可すると、より多くの保護された場所を解析できます。</string>
+	<key>Recuperable estimado: %@</key>
+	<string>解放可能な領域の推定: %@</string>
+	<key>Recuperable estimado: no disponible</key>
+	<string>解放可能な領域の推定: 利用不可</string>
+	<key>Resultado parcial</key>
+	<string>一部のみの結果</string>
+	<key>Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.</key>
+	<string>一部の内容のサイズを計算できなかったため、結果は不完全です。詳しくは「問題」を確認してください。</string>
+	<key>Ruta</key>
+	<string>パス</string>
+	<key>Se moverá la carpeta y todo su contenido.</key>
+	<string>フォルダとそのすべての内容が移動されます。</string>
+	<key>Selecciona una carpeta o un volumen para analizar su espacio.</key>
+	<string>容量を解析するフォルダまたはボリュームを選択してください。</string>
+	<key>Sin ordenar</key>
+	<string>未設定</string>
+	<key>Sitio web de Folder Size</key>
+	<string>Folder Size のウェブサイト</string>
+	<key>Subir un nivel</key>
+	<string>1 つ上の階層へ</string>
+	<key>Tamaño</key>
+	<string>サイズ</string>
+	<key>Tamaño analizado</key>
+	<string>解析したサイズ</string>
+	<key>Tamaño lógico</key>
+	<string>論理サイズ</string>
+	<key>Versión %@ (%@)</key>
+	<string>バージョン %@（%@）</string>
+	<key>Vista</key>
+	<string>表示</string>
+	<key>Volumen: %@ total · %@ libre (%@ libre)</key>
+	<string>ボリューム: 合計 %@ · 空き %@（空き %@）</string>
+	<key>tamaño asignado no disponible</key>
+	<string>割り当てサイズを取得できません</string>
+	<key>¿Mover a la papelera?</key>
+	<string>ゴミ箱に移動しますか？</string>
+</dict>
+</plist>

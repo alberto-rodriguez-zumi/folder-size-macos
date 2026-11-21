@@ -3,6 +3,8 @@ import Foundation
 @main
 struct AppLanguageTests {
     static func main() {
+        precondition(AppLanguage.resolve("system", systemLanguages: ["ja-JP"]) == "ja")
+        precondition(AppLanguage.resolve("ja", systemLanguages: ["es-ES"]) == "ja")
         precondition(AppLanguage.resolve("system", systemLanguages: ["es-MX"]) == "es")
         precondition(AppLanguage.resolve("system", systemLanguages: ["es_ES"]) == "es")
         precondition(AppLanguage.resolve("system", systemLanguages: ["fr-FR", "es"]) == "en")

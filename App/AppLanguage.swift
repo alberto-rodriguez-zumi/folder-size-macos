@@ -5,7 +5,7 @@ import Foundation
 enum AppLanguage {
     static let preferenceKey = "preferredLanguage"
     static let automatic = "system"
-    static let supported = ["en", "es"]
+    static let supported = ["en", "es", "ja"]
 
     static func resolve(_ preference: String, systemLanguages: [String]) -> String {
         if preference != automatic, supported.contains(preference) { return preference }
