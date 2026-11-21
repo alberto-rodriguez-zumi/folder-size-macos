@@ -14,6 +14,6 @@ export FOLDER_SIZE_NOTARY_PROFILE='nombre-del-perfil-del-llavero'
 bash Scripts/build-release.sh
 ```
 
-El script compila un binario universal, firma la aplicación con hardened runtime y sello de tiempo, crea y firma el DMG, lo envía al servicio de notarización de Apple, adjunta el ticket y verifica el resultado. Produce `dist/Folder-Size-0.2.0.dmg`. Si falla cualquier paso, no publiques el archivo como versión notarizada. La firma, notarización, instalación en otro Mac y validación de ambas arquitecturas requieren realizarse con los certificados y equipos adecuados; no se han dado por realizadas por el hecho de preparar el script.
+El script compila un binario universal, firma la aplicación con hardened runtime y sello de tiempo, crea y firma el DMG, lo envía al servicio de notarización de Apple, adjunta el ticket y verifica el resultado. Produce `dist/Folder-Size-0.3.0.dmg`. Si falla cualquier paso, no publiques el archivo como versión notarizada. La firma, notarización, instalación en otro Mac y validación de ambas arquitecturas requieren realizarse con los certificados y equipos adecuados; no se han dado por realizadas por el hecho de preparar el script.
 
 Actualiza los números de versión del paquete y el nombre del DMG antes de preparar una versión posterior. Crea el tag sobre el commit verificado de `main`, prepara las notas y adjunta el DMG final a una GitHub Release. Un repositorio privado limita la descarga a quienes tengan acceso; para ofrecer descargas públicas se necesita otro canal o cambiar la visibilidad deliberadamente.

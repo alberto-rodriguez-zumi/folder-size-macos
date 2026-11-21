@@ -12,7 +12,7 @@ La versión preliminar generada para desarrollo está firmada localmente y no es
 
 ## Idioma
 
-Folder Size usa español cuando el idioma del sistema es una variante del español e inglés para los demás idiomas. En **Folder Size → Configuración** puedes elegir español, inglés o automático; la elección se conserva entre ejecuciones. Los cuadros y menús propios de macOS pueden seguir el idioma del sistema.
+Folder Size usa español o japonés cuando el idioma del sistema corresponde a una de sus variantes, e inglés para los demás idiomas. En **Folder Size → Configuración** puedes elegir español, inglés, japonés o automático; la elección se conserva entre ejecuciones. Los cuadros y menús propios de macOS pueden seguir el idioma del sistema.
 
 Las traducciones se mantienen en `Resources/<idioma>.lproj/Localizable.strings`; añade el código del idioma a `AppLanguage.supported` y a `CFBundleLocalizations` para incorporar otra traducción.
 

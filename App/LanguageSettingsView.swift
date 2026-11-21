@@ -9,6 +9,7 @@ struct LanguageSettingsView: View {
                 Text(L("Automático (idioma del sistema)")).tag(AppLanguage.automatic)
                 Text(verbatim: "Español").tag("es")
                 Text(verbatim: "English").tag("en")
+                Text(verbatim: "日本語").tag("ja")
             } label: {
                 Label(L("Idioma"), systemImage: "globe")
             }

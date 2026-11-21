@@ -10,11 +10,12 @@ python3 - "$project_dir" <<'PY'
 import plistlib, re, sys
 from pathlib import Path
 root = Path(sys.argv[1])
-tables = {lang: plistlib.loads((root / 'Resources' / (lang + '.lproj') / 'Localizable.strings').read_bytes()) for lang in ('es', 'en')}
-assert tables['es'].keys() == tables['en'].keys(), 'Translation tables differ'
-for key, translation in tables['en'].items():
-    assert translation, f'Missing translation: {key}'
-    assert re.findall(r'%(?:lld|@)', key) == re.findall(r'%(?:lld|@)', translation), f'Format mismatch: {key}'
+tables = {lang: plistlib.loads((root / 'Resources' / (lang + '.lproj') / 'Localizable.strings').read_bytes()) for lang in ('es', 'en', 'ja')}
+assert tables['es'].keys() == tables['en'].keys() == tables['ja'].keys(), 'Translation tables differ'
+for lang, table in tables.items():
+    for key, translation in table.items():
+        assert translation, f'Missing {lang} translation: {key}'
+        assert re.findall(r'%(?:lld|@)', key) == re.findall(r'%(?:lld|@)', translation), f'Format mismatch in {lang}: {key}'
 for file in (root / 'App').glob('*.swift'):
     if file.name == 'AppLanguage.swift':
         continue

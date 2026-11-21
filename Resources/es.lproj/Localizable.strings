@@ -22,10 +22,10 @@
 	<string>Abrir carpeta</string>
 	<key>Abrir carpeta %@</key>
 	<string>Abrir carpeta %@</string>
-	<key>Abrir el repositorio de Folder Size</key>
-	<string>Abrir el repositorio de Folder Size</string>
 	<key>Abrir en Terminal</key>
 	<string>Abrir en Terminal</string>
+	<key>Abrir la web de Folder Size</key>
+	<string>Abrir la web de Folder Size</string>
 	<key>Acceso al disco</key>
 	<string>Acceso al disco</string>
 	<key>Acceso completo al disco</key>
@@ -156,8 +156,6 @@
 	<string>Recuperable estimado: %@</string>
 	<key>Recuperable estimado: no disponible</key>
 	<string>Recuperable estimado: no disponible</string>
-	<key>Repositorio en GitHub</key>
-	<string>Repositorio en GitHub</string>
 	<key>Resultado parcial</key>
 	<string>Resultado parcial</string>
 	<key>Resultado parcial: no se pudo calcular el tamaño de todo el contenido. Consulta Incidencias para ver las causas.</key>
@@ -170,6 +168,8 @@
 	<string>Selecciona una carpeta o un volumen para analizar su espacio.</string>
 	<key>Sin ordenar</key>
 	<string>Sin ordenar</string>
+	<key>Sitio web de Folder Size</key>
+	<string>Sitio web de Folder Size</string>
 	<key>Subir un nivel</key>
 	<string>Subir un nivel</string>
 	<key>Tamaño</key>
